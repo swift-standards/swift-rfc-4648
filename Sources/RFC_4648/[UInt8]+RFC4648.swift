@@ -22,7 +22,7 @@ extension [UInt8] {
     /// - Parameter base64URLEncoded: Base64URL encoded string
     /// - Returns: Decoded bytes, or nil if invalid Base64URL
     public init?(base64URLEncoded string: String) {
-        guard let decoded = RFC_4648.Base64URL.decode(string) else { return nil }
+        guard let decoded = RFC_4648.Base64.URL.decode(string) else { return nil }
         self = decoded
     }
 }
@@ -46,7 +46,7 @@ extension [UInt8] {
     /// - Parameter base32HexEncoded: Base32-HEX encoded string (case-insensitive)
     /// - Returns: Decoded bytes, or nil if invalid Base32-HEX
     public init?(base32HexEncoded string: String) {
-        guard let decoded = RFC_4648.Base32Hex.decode(string) else { return nil }
+        guard let decoded = RFC_4648.Base32.Hex.decode(string) else { return nil }
         self = decoded
     }
 }

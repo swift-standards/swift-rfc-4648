@@ -1,4 +1,4 @@
-// Base32HexTests.swift
+// Base32.HexTests.swift
 // swift-rfc-4648
 //
 // Tests for RFC 4648 Section 7: Base32-HEX Encoding (Extended Hex Alphabet)

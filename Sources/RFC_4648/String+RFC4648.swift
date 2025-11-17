@@ -25,7 +25,7 @@ extension String {
     ///   - base64URLEncoding: The bytes to encode
     ///   - padding: Whether to include padding characters (default: false per RFC 7515)
     public init(base64URLEncoding bytes: [UInt8], padding: Bool = false) {
-        let encoded = RFC_4648.Base64URL.encode(bytes, padding: padding)
+        let encoded = RFC_4648.Base64.URL.encode(bytes, padding: padding)
         self = String(decoding: encoded, as: UTF8.self)
     }
 }
@@ -53,7 +53,7 @@ extension String {
     ///   - base32HexEncoding: The bytes to encode
     ///   - padding: Whether to include padding characters (default: true)
     public init(base32HexEncoding bytes: [UInt8], padding: Bool = true) {
-        let encoded = RFC_4648.Base32Hex.encode(bytes, padding: padding)
+        let encoded = RFC_4648.Base32.Hex.encode(bytes, padding: padding)
         self = String(decoding: encoded, as: UTF8.self)
     }
 }

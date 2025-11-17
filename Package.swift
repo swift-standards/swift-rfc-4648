@@ -8,13 +8,15 @@ let package = Package(
         .library(name: "RFC_4648", targets: ["RFC_4648"])
     ],
     dependencies: [
-        .package(path: "../swift-standards")
+        .package(path: "../swift-standards"),
+        .package(path: "../swift-incits-4-1986")
     ],
     targets: [
         .target(
             name: "RFC_4648",
             dependencies: [
-                .product(name: "Standards", package: "swift-standards")
+                .product(name: "Standards", package: "swift-standards"),
+                .product(name: "INCITS_4_1986", package: "swift-incits-4-1986")
             ]
         ),
         .testTarget(
