@@ -74,31 +74,16 @@ struct Base64URLTests {
         #expect(encoded == "Zg==")
     }
 
-    @Test("Base64URL decoding without padding")
-    func testDecodingWithoutPadding() {
-        let input = "Zg"
-        let decoded = [UInt8](base64URLEncoded: input)
-        #expect(decoded == Array("f".utf8))
-    }
-
-    @Test("Base64URL decoding with padding")
-    func testDecodingWithPadding() {
-        let input = "Zg=="
-        let decoded = [UInt8](base64URLEncoded: input)
-        #expect(decoded == Array("f".utf8))
-    }
-
-    @Test("Base64URL decoding mixed padding scenarios")
-    func testMixedPaddingScenarios() {
-        // 1 byte input -> 2 chars (no padding needed)
-        #expect([UInt8](base64URLEncoded: "Zg") == Array("f".utf8))
-
-        // 2 bytes input -> 3 chars + 1 padding
-        #expect([UInt8](base64URLEncoded: "Zm8") == Array("fo".utf8))
-        #expect([UInt8](base64URLEncoded: "Zm8=") == Array("fo".utf8))
-
-        // 3 bytes input -> 4 chars (no padding needed)
-        #expect([UInt8](base64URLEncoded: "Zm9v") == Array("foo".utf8))
+    @Test("Base64URL decoding with and without padding", arguments: [
+        ("Zg", "f"),       // no padding
+        ("Zg==", "f"),     // with padding
+        ("Zm8", "fo"),     // no padding
+        ("Zm8=", "fo"),    // with padding
+        ("Zm9v", "foo")    // no padding needed
+    ])
+    func testPaddingVariations(encoded: String, expected: String) {
+        let decoded = [UInt8](base64URLEncoded: encoded)
+        #expect(decoded == Array(expected.utf8), "'\(encoded)' should decode to '\(expected)'")
     }
 
     // MARK: - Whitespace Handling
@@ -112,28 +97,15 @@ struct Base64URLTests {
 
     // MARK: - Invalid Input Tests
 
-    @Test("Base64URL decoding standard Base64 characters fails")
-    func testRejectStandardBase64Characters() {
-        // '+' and '/' are not valid in Base64URL
-        let withPlus = "Zg+A"
-        #expect([UInt8](base64URLEncoded: withPlus) == nil)
-
-        let withSlash = "Zg/A"
-        #expect([UInt8](base64URLEncoded: withSlash) == nil)
-    }
-
-    @Test("Base64URL decoding invalid characters")
-    func testInvalidCharacters() {
-        let input = "Zm9v!!!!"
+    @Test("Base64URL decoding rejects invalid input", arguments: [
+        "Zg+A",      // '+' not valid in Base64URL
+        "Zg/A",      // '/' not valid in Base64URL
+        "Zm9v!!!!",  // special characters
+        "Z"          // too short
+    ])
+    func testInvalidInput(input: String) {
         let decoded = [UInt8](base64URLEncoded: input)
-        #expect(decoded == nil)
-    }
-
-    @Test("Base64URL decoding invalid length")
-    func testInvalidLength() {
-        let input = "Z"
-        let decoded = [UInt8](base64URLEncoded: input)
-        #expect(decoded == nil)
+        #expect(decoded == nil, "\(input) should be rejected")
     }
 
     // MARK: - JWT Use Case

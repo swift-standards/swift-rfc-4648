@@ -11,74 +11,22 @@ struct Base64Tests {
 
     // MARK: - RFC 4648 Section 10 Test Vectors
 
-    @Test("RFC 4648 test vector: empty")
-    func testEmptyString() {
-        let input: [UInt8] = []
-        let encoded = String(base64Encoding: input)
-        #expect(encoded == "")
+    @Test("RFC 4648 test vectors", arguments: [
+        ("", ""),
+        ("f", "Zg=="),
+        ("fo", "Zm8="),
+        ("foo", "Zm9v"),
+        ("foob", "Zm9vYg=="),
+        ("fooba", "Zm9vYmE="),
+        ("foobar", "Zm9vYmFy")
+    ])
+    func testRFCVectors(input: String, expected: String) {
+        let bytes = Array(input.utf8)
+        let encoded = String(base64Encoding: bytes)
+        #expect(encoded == expected, "Encoding '\(input)' should produce '\(expected)'")
 
         let decoded = [UInt8](base64Encoded: encoded)
-        #expect(decoded == input)
-    }
-
-    @Test("RFC 4648 test vector: f")
-    func testSingleChar() {
-        let input: [UInt8] = Array("f".utf8)
-        let encoded = String(base64Encoding: input)
-        #expect(encoded == "Zg==")
-
-        let decoded = [UInt8](base64Encoded: encoded)
-        #expect(decoded == input)
-    }
-
-    @Test("RFC 4648 test vector: fo")
-    func testTwoChars() {
-        let input: [UInt8] = Array("fo".utf8)
-        let encoded = String(base64Encoding: input)
-        #expect(encoded == "Zm8=")
-
-        let decoded = [UInt8](base64Encoded: encoded)
-        #expect(decoded == input)
-    }
-
-    @Test("RFC 4648 test vector: foo")
-    func testThreeChars() {
-        let input: [UInt8] = Array("foo".utf8)
-        let encoded = String(base64Encoding: input)
-        #expect(encoded == "Zm9v")
-
-        let decoded = [UInt8](base64Encoded: encoded)
-        #expect(decoded == input)
-    }
-
-    @Test("RFC 4648 test vector: foob")
-    func testFourChars() {
-        let input: [UInt8] = Array("foob".utf8)
-        let encoded = String(base64Encoding: input)
-        #expect(encoded == "Zm9vYg==")
-
-        let decoded = [UInt8](base64Encoded: encoded)
-        #expect(decoded == input)
-    }
-
-    @Test("RFC 4648 test vector: fooba")
-    func testFiveChars() {
-        let input: [UInt8] = Array("fooba".utf8)
-        let encoded = String(base64Encoding: input)
-        #expect(encoded == "Zm9vYmE=")
-
-        let decoded = [UInt8](base64Encoded: encoded)
-        #expect(decoded == input)
-    }
-
-    @Test("RFC 4648 test vector: foobar")
-    func testSixChars() {
-        let input: [UInt8] = Array("foobar".utf8)
-        let encoded = String(base64Encoding: input)
-        #expect(encoded == "Zm9vYmFy")
-
-        let decoded = [UInt8](base64Encoded: encoded)
-        #expect(decoded == input)
+        #expect(decoded == bytes, "Round-trip failed for '\(input)'")
     }
 
     // MARK: - Padding Tests
@@ -106,34 +54,28 @@ struct Base64Tests {
 
     // MARK: - Whitespace Handling
 
-    @Test("Base64 decoding with whitespace")
-    func testWhitespaceHandling() {
-        let input = "Zm9v\n YmFy"
+    @Test("Base64 decoding with whitespace", arguments: [
+        "Zm9v\nYmFy",     // newline
+        "Zm9v\tYmFy",     // tab
+        "Zm9v YmFy",      // space
+        "Zm9v\n\t YmFy"   // mixed whitespace
+    ])
+    func testWhitespaceHandling(input: String) {
         let decoded = [UInt8](base64Encoded: input)
-        #expect(decoded == Array("foobar".utf8))
-    }
-
-    @Test("Base64 decoding with tabs")
-    func testTabHandling() {
-        let input = "Zm9v\tYmFy"
-        let decoded = [UInt8](base64Encoded: input)
-        #expect(decoded == Array("foobar".utf8))
+        #expect(decoded == Array("foobar".utf8), "Whitespace should be ignored")
     }
 
     // MARK: - Invalid Input Tests
 
-    @Test("Base64 decoding invalid characters")
-    func testInvalidCharacters() {
-        let input = "Zm9v!!!!"
+    @Test("Base64 decoding rejects invalid input", arguments: [
+        "Zm9v!!!!",  // invalid characters
+        "Zm9",       // invalid length (not multiple of 4)
+        "====",      // only padding
+        "Z"          // too short
+    ])
+    func testInvalidInput(input: String) {
         let decoded = [UInt8](base64Encoded: input)
-        #expect(decoded == nil)
-    }
-
-    @Test("Base64 decoding invalid length")
-    func testInvalidLength() {
-        let input = "Zm9"
-        let decoded = [UInt8](base64Encoded: input)
-        #expect(decoded == nil)
+        #expect(decoded == nil, "\(input) should be rejected")
     }
 
     // MARK: - Binary Data Tests

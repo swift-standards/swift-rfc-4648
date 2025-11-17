@@ -11,93 +11,36 @@ struct Base32Tests {
 
     // MARK: - RFC 4648 Section 10 Test Vectors
 
-    @Test("RFC 4648 test vector: empty")
-    func testEmptyString() {
-        let input: [UInt8] = []
-        let encoded = String(base32Encoding: input)
-        #expect(encoded == "")
+    @Test("RFC 4648 test vectors", arguments: [
+        ("", ""),
+        ("f", "MY======"),
+        ("fo", "MZXQ===="),
+        ("foo", "MZXW6==="),
+        ("foob", "MZXW6YQ="),
+        ("fooba", "MZXW6YTB"),
+        ("foobar", "MZXW6YTBOI======")
+    ])
+    func testRFCVectors(input: String, expected: String) {
+        let bytes = Array(input.utf8)
+        let encoded = String(base32Encoding: bytes)
+        #expect(encoded == expected, "Encoding '\(input)' should produce '\(expected)'")
 
         let decoded = [UInt8](base32Encoded: encoded)
-        #expect(decoded == input)
-    }
-
-    @Test("RFC 4648 test vector: f")
-    func testSingleChar() {
-        let input: [UInt8] = Array("f".utf8)
-        let encoded = String(base32Encoding: input)
-        #expect(encoded == "MY======")
-
-        let decoded = [UInt8](base32Encoded: encoded)
-        #expect(decoded == input)
-    }
-
-    @Test("RFC 4648 test vector: fo")
-    func testTwoChars() {
-        let input: [UInt8] = Array("fo".utf8)
-        let encoded = String(base32Encoding: input)
-        #expect(encoded == "MZXQ====")
-
-        let decoded = [UInt8](base32Encoded: encoded)
-        #expect(decoded == input)
-    }
-
-    @Test("RFC 4648 test vector: foo")
-    func testThreeChars() {
-        let input: [UInt8] = Array("foo".utf8)
-        let encoded = String(base32Encoding: input)
-        #expect(encoded == "MZXW6===")
-
-        let decoded = [UInt8](base32Encoded: encoded)
-        #expect(decoded == input)
-    }
-
-    @Test("RFC 4648 test vector: foob")
-    func testFourChars() {
-        let input: [UInt8] = Array("foob".utf8)
-        let encoded = String(base32Encoding: input)
-        #expect(encoded == "MZXW6YQ=")
-
-        let decoded = [UInt8](base32Encoded: encoded)
-        #expect(decoded == input)
-    }
-
-    @Test("RFC 4648 test vector: fooba")
-    func testFiveChars() {
-        let input: [UInt8] = Array("fooba".utf8)
-        let encoded = String(base32Encoding: input)
-        #expect(encoded == "MZXW6YTB")
-
-        let decoded = [UInt8](base32Encoded: encoded)
-        #expect(decoded == input)
-    }
-
-    @Test("RFC 4648 test vector: foobar")
-    func testSixChars() {
-        let input: [UInt8] = Array("foobar".utf8)
-        let encoded = String(base32Encoding: input)
-        #expect(encoded == "MZXW6YTBOI======")
-
-        let decoded = [UInt8](base32Encoded: encoded)
-        #expect(decoded == input)
+        #expect(decoded == bytes, "Round-trip failed for '\(input)'")
     }
 
     // MARK: - Case Insensitivity Tests
 
-    @Test("Base32 decoding is case-insensitive")
-    func testCaseInsensitive() {
-        let input: [UInt8] = Array("foo".utf8)
-
-        // Uppercase
-        let uppercase = [UInt8](base32Encoded: "MZXW6===")
-        #expect(uppercase == input)
-
-        // Lowercase
-        let lowercase = [UInt8](base32Encoded: "mzxw6===")
-        #expect(lowercase == input)
-
-        // Mixed case
-        let mixed = [UInt8](base32Encoded: "MzXw6===")
-        #expect(mixed == input)
+    @Test("Base32 decoding is case-insensitive", arguments: [
+        "MZXW6===",  // uppercase
+        "mzxw6===",  // lowercase
+        "MzXw6===",  // mixed case
+        "mZxW6==="   // random mixed case
+    ])
+    func testCaseInsensitive(encoded: String) {
+        let expected: [UInt8] = Array("foo".utf8)
+        let decoded = [UInt8](base32Encoded: encoded)
+        #expect(decoded == expected, "Case-insensitive decoding should work for '\(encoded)'")
     }
 
     @Test("Base32 encoding produces uppercase")
@@ -161,34 +104,18 @@ struct Base32Tests {
 
     // MARK: - Invalid Input Tests
 
-    @Test("Base32 decoding invalid characters")
-    func testInvalidCharacters() {
-        // Base32 doesn't use 0, 1, 8, 9
-        let invalid1 = "MZXW0==="
-        #expect([UInt8](base32Encoded: invalid1) == nil)
-
-        let invalid2 = "MZXW1==="
-        #expect([UInt8](base32Encoded: invalid2) == nil)
-
-        let invalid3 = "MZXW8==="
-        #expect([UInt8](base32Encoded: invalid3) == nil)
-
-        let invalid4 = "MZXW9==="
-        #expect([UInt8](base32Encoded: invalid4) == nil)
-    }
-
-    @Test("Base32 decoding invalid length")
-    func testInvalidLength() {
-        let input = "M"
+    @Test("Base32 decoding rejects invalid input", arguments: [
+        "MZXW0===",   // Base32 doesn't use 0
+        "MZXW1===",   // Base32 doesn't use 1
+        "MZXW8===",   // Base32 doesn't use 8
+        "MZXW9===",   // Base32 doesn't use 9
+        "M",          // invalid length (too short)
+        "MZXW!@#$",   // special characters
+        "========",   // only padding
+    ])
+    func testInvalidInput(input: String) {
         let decoded = [UInt8](base32Encoded: input)
-        #expect(decoded == nil)
-    }
-
-    @Test("Base32 decoding special characters")
-    func testInvalidSpecialCharacters() {
-        let input = "MZXW!@#$"
-        let decoded = [UInt8](base32Encoded: input)
-        #expect(decoded == nil)
+        #expect(decoded == nil, "\(input) should be rejected")
     }
 
     // MARK: - Alphabet Tests

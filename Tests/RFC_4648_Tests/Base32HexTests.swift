@@ -11,74 +11,22 @@ struct Base32HexTests {
 
     // MARK: - RFC 4648 Section 10 Test Vectors
 
-    @Test("RFC 4648 test vector: empty")
-    func testEmptyString() {
-        let input: [UInt8] = []
-        let encoded = String(base32HexEncoding: input)
-        #expect(encoded == "")
+    @Test("RFC 4648 test vectors", arguments: [
+        ("", ""),
+        ("f", "CO======"),
+        ("fo", "CPNG===="),
+        ("foo", "CPNMU==="),
+        ("foob", "CPNMUOG="),
+        ("fooba", "CPNMUOJ1"),
+        ("foobar", "CPNMUOJ1E8======")
+    ])
+    func testRFCVectors(input: String, expected: String) {
+        let bytes = Array(input.utf8)
+        let encoded = String(base32HexEncoding: bytes)
+        #expect(encoded == expected, "Encoding '\(input)' should produce '\(expected)'")
 
         let decoded = [UInt8](base32HexEncoded: encoded)
-        #expect(decoded == input)
-    }
-
-    @Test("RFC 4648 test vector: f")
-    func testSingleChar() {
-        let input: [UInt8] = Array("f".utf8)
-        let encoded = String(base32HexEncoding: input)
-        #expect(encoded == "CO======")
-
-        let decoded = [UInt8](base32HexEncoded: encoded)
-        #expect(decoded == input)
-    }
-
-    @Test("RFC 4648 test vector: fo")
-    func testTwoChars() {
-        let input: [UInt8] = Array("fo".utf8)
-        let encoded = String(base32HexEncoding: input)
-        #expect(encoded == "CPNG====")
-
-        let decoded = [UInt8](base32HexEncoded: encoded)
-        #expect(decoded == input)
-    }
-
-    @Test("RFC 4648 test vector: foo")
-    func testThreeChars() {
-        let input: [UInt8] = Array("foo".utf8)
-        let encoded = String(base32HexEncoding: input)
-        #expect(encoded == "CPNMU===")
-
-        let decoded = [UInt8](base32HexEncoded: encoded)
-        #expect(decoded == input)
-    }
-
-    @Test("RFC 4648 test vector: foob")
-    func testFourChars() {
-        let input: [UInt8] = Array("foob".utf8)
-        let encoded = String(base32HexEncoding: input)
-        #expect(encoded == "CPNMUOG=")
-
-        let decoded = [UInt8](base32HexEncoded: encoded)
-        #expect(decoded == input)
-    }
-
-    @Test("RFC 4648 test vector: fooba")
-    func testFiveChars() {
-        let input: [UInt8] = Array("fooba".utf8)
-        let encoded = String(base32HexEncoding: input)
-        #expect(encoded == "CPNMUOJ1")
-
-        let decoded = [UInt8](base32HexEncoded: encoded)
-        #expect(decoded == input)
-    }
-
-    @Test("RFC 4648 test vector: foobar")
-    func testSixChars() {
-        let input: [UInt8] = Array("foobar".utf8)
-        let encoded = String(base32HexEncoding: input)
-        #expect(encoded == "CPNMUOJ1E8======")
-
-        let decoded = [UInt8](base32HexEncoded: encoded)
-        #expect(decoded == input)
+        #expect(decoded == bytes, "Round-trip failed for '\(input)'")
     }
 
     // MARK: - Alphabet Tests
@@ -111,21 +59,16 @@ struct Base32HexTests {
 
     // MARK: - Case Insensitivity Tests
 
-    @Test("Base32-HEX decoding is case-insensitive")
-    func testCaseInsensitive() {
-        let input: [UInt8] = Array("foo".utf8)
-
-        // Uppercase
-        let uppercase = [UInt8](base32HexEncoded: "CPNMU===")
-        #expect(uppercase == input)
-
-        // Lowercase
-        let lowercase = [UInt8](base32HexEncoded: "cpnmu===")
-        #expect(lowercase == input)
-
-        // Mixed case
-        let mixed = [UInt8](base32HexEncoded: "CpNmU===")
-        #expect(mixed == input)
+    @Test("Base32-HEX decoding is case-insensitive", arguments: [
+        "CPNMU===",  // uppercase
+        "cpnmu===",  // lowercase
+        "CpNmU===",  // mixed case
+        "cPnMu==="   // random mixed case
+    ])
+    func testCaseInsensitive(encoded: String) {
+        let expected: [UInt8] = Array("foo".utf8)
+        let decoded = [UInt8](base32HexEncoded: encoded)
+        #expect(decoded == expected, "Case-insensitive decoding should work for '\(encoded)'")
     }
 
     @Test("Base32-HEX encoding produces uppercase")
@@ -189,28 +132,16 @@ struct Base32HexTests {
 
     // MARK: - Invalid Input Tests
 
-    @Test("Base32-HEX decoding invalid characters")
-    func testInvalidCharacters() {
-        // Base32-HEX doesn't use W-Z
-        let invalidW = "CPNMW==="
-        #expect([UInt8](base32HexEncoded: invalidW) == nil)
-
-        let invalidZ = "CPNMZ==="
-        #expect([UInt8](base32HexEncoded: invalidZ) == nil)
-    }
-
-    @Test("Base32-HEX decoding invalid length")
-    func testInvalidLength() {
-        let input = "C"
+    @Test("Base32-HEX decoding rejects invalid input", arguments: [
+        "CPNMW===",   // Base32-HEX doesn't use W
+        "CPNMZ===",   // Base32-HEX doesn't use Z
+        "C",          // invalid length (too short)
+        "CPNM!@#$",   // special characters
+        "========"    // only padding
+    ])
+    func testInvalidInput(input: String) {
         let decoded = [UInt8](base32HexEncoded: input)
-        #expect(decoded == nil)
-    }
-
-    @Test("Base32-HEX decoding special characters")
-    func testInvalidSpecialCharacters() {
-        let input = "CPNM!@#$"
-        let decoded = [UInt8](base32HexEncoded: input)
-        #expect(decoded == nil)
+        #expect(decoded == nil, "\(input) should be rejected")
     }
 
     // MARK: - Binary Data Tests

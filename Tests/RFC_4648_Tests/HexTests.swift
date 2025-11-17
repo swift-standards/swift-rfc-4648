@@ -11,74 +11,22 @@ struct HexTests {
 
     // MARK: - RFC 4648 Section 10 Test Vectors
 
-    @Test("RFC 4648 test vector: empty")
-    func testEmptyString() {
-        let input: [UInt8] = []
-        let encoded = String(hexEncoding: input)
-        #expect(encoded == "")
+    @Test("RFC 4648 test vectors", arguments: [
+        ("", ""),
+        ("f", "66"),
+        ("fo", "666f"),
+        ("foo", "666f6f"),
+        ("foob", "666f6f62"),
+        ("fooba", "666f6f6261"),
+        ("foobar", "666f6f626172")
+    ])
+    func testRFCVectors(input: String, expected: String) {
+        let bytes = Array(input.utf8)
+        let encoded = String(hexEncoding: bytes)
+        #expect(encoded == expected, "Encoding '\(input)' should produce '\(expected)'")
 
         let decoded = [UInt8](hexEncoded: encoded)
-        #expect(decoded == input)
-    }
-
-    @Test("RFC 4648 test vector: f")
-    func testSingleChar() {
-        let input: [UInt8] = Array("f".utf8)
-        let encoded = String(hexEncoding: input)
-        #expect(encoded == "66")
-
-        let decoded = [UInt8](hexEncoded: encoded)
-        #expect(decoded == input)
-    }
-
-    @Test("RFC 4648 test vector: fo")
-    func testTwoChars() {
-        let input: [UInt8] = Array("fo".utf8)
-        let encoded = String(hexEncoding: input)
-        #expect(encoded == "666f")
-
-        let decoded = [UInt8](hexEncoded: encoded)
-        #expect(decoded == input)
-    }
-
-    @Test("RFC 4648 test vector: foo")
-    func testThreeChars() {
-        let input: [UInt8] = Array("foo".utf8)
-        let encoded = String(hexEncoding: input)
-        #expect(encoded == "666f6f")
-
-        let decoded = [UInt8](hexEncoded: encoded)
-        #expect(decoded == input)
-    }
-
-    @Test("RFC 4648 test vector: foob")
-    func testFourChars() {
-        let input: [UInt8] = Array("foob".utf8)
-        let encoded = String(hexEncoding: input)
-        #expect(encoded == "666f6f62")
-
-        let decoded = [UInt8](hexEncoded: encoded)
-        #expect(decoded == input)
-    }
-
-    @Test("RFC 4648 test vector: fooba")
-    func testFiveChars() {
-        let input: [UInt8] = Array("fooba".utf8)
-        let encoded = String(hexEncoding: input)
-        #expect(encoded == "666f6f6261")
-
-        let decoded = [UInt8](hexEncoded: encoded)
-        #expect(decoded == input)
-    }
-
-    @Test("RFC 4648 test vector: foobar")
-    func testSixChars() {
-        let input: [UInt8] = Array("foobar".utf8)
-        let encoded = String(hexEncoding: input)
-        #expect(encoded == "666f6f626172")
-
-        let decoded = [UInt8](hexEncoded: encoded)
-        #expect(decoded == input)
+        #expect(decoded == bytes, "Round-trip failed for '\(input)'")
     }
 
     // MARK: - Case Tests
@@ -97,104 +45,58 @@ struct HexTests {
         #expect(encoded == "FFABCD")
     }
 
-    @Test("Hex decoding is case-insensitive")
-    func testDecodingCaseInsensitive() {
-        let input: [UInt8] = [0xFF, 0xAB]
-
-        // Lowercase
-        let lowercase = [UInt8](hexEncoded: "ffab")
-        #expect(lowercase == input)
-
-        // Uppercase
-        let uppercase = [UInt8](hexEncoded: "FFAB")
-        #expect(uppercase == input)
-
-        // Mixed case
-        let mixed = [UInt8](hexEncoded: "FfAb")
-        #expect(mixed == input)
+    @Test("Hex decoding is case-insensitive", arguments: [
+        "ffab",  // lowercase
+        "FFAB",  // uppercase
+        "FfAb",  // mixed case
+        "fFaB"   // random mixed case
+    ])
+    func testDecodingCaseInsensitive(encoded: String) {
+        let expected: [UInt8] = [0xFF, 0xAB]
+        let decoded = [UInt8](hexEncoded: encoded)
+        #expect(decoded == expected, "Case-insensitive decoding should work for '\(encoded)'")
     }
 
     // MARK: - Prefix Tests
 
-    @Test("Hex decoding with 0x prefix")
-    func testWithPrefix() {
-        let input = "0xFF"
+    @Test("Hex decoding with various prefix formats", arguments: [
+        ("0xFF", [0xFF]),
+        ("0XFF", [0xFF]),
+        ("FF", [0xFF]),
+        ("0xDEADBEEF", [0xDE, 0xAD, 0xBE, 0xEF]),
+        ("0Xdeadbeef", [0xDE, 0xAD, 0xBE, 0xEF])
+    ])
+    func testPrefixHandling(input: String, expected: [UInt8]) {
         let decoded = [UInt8](hexEncoded: input)
-        #expect(decoded == [0xFF])
-    }
-
-    @Test("Hex decoding with 0X prefix (uppercase)")
-    func testWithUppercasePrefix() {
-        let input = "0XFF"
-        let decoded = [UInt8](hexEncoded: input)
-        #expect(decoded == [0xFF])
-    }
-
-    @Test("Hex decoding without prefix")
-    func testWithoutPrefix() {
-        let input = "FF"
-        let decoded = [UInt8](hexEncoded: input)
-        #expect(decoded == [0xFF])
-    }
-
-    @Test("Hex decoding multiple bytes with prefix")
-    func testMultipleBytesWithPrefix() {
-        let input = "0xDEADBEEF"
-        let decoded = [UInt8](hexEncoded: input)
-        #expect(decoded == [0xDE, 0xAD, 0xBE, 0xEF])
+        #expect(decoded == expected, "'\(input)' should decode to \(expected)")
     }
 
     // MARK: - Whitespace Handling
 
-    @Test("Hex decoding with spaces")
-    func testSpaceHandling() {
-        let input = "DE AD BE EF"
+    @Test("Hex decoding with whitespace", arguments: [
+        "DE AD BE EF",      // spaces
+        "DE\nAD\nBE\nEF",   // newlines
+        "DE\tAD\tBE\tEF",   // tabs
+        "DE AD\nBE\tEF",    // mixed whitespace
+        "DEADBEEF"          // no whitespace
+    ])
+    func testWhitespaceHandling(input: String) {
+        let expected: [UInt8] = [0xDE, 0xAD, 0xBE, 0xEF]
         let decoded = [UInt8](hexEncoded: input)
-        #expect(decoded == [0xDE, 0xAD, 0xBE, 0xEF])
-    }
-
-    @Test("Hex decoding with newlines")
-    func testNewlineHandling() {
-        let input = "DE\nAD\nBE\nEF"
-        let decoded = [UInt8](hexEncoded: input)
-        #expect(decoded == [0xDE, 0xAD, 0xBE, 0xEF])
-    }
-
-    @Test("Hex decoding with tabs")
-    func testTabHandling() {
-        let input = "DE\tAD\tBE\tEF"
-        let decoded = [UInt8](hexEncoded: input)
-        #expect(decoded == [0xDE, 0xAD, 0xBE, 0xEF])
-    }
-
-    @Test("Hex decoding with mixed whitespace")
-    func testMixedWhitespace() {
-        let input = "DE AD\nBE\tEF"
-        let decoded = [UInt8](hexEncoded: input)
-        #expect(decoded == [0xDE, 0xAD, 0xBE, 0xEF])
+        #expect(decoded == expected, "Whitespace should be ignored in '\(input)'")
     }
 
     // MARK: - Invalid Input Tests
 
-    @Test("Hex decoding invalid characters")
-    func testInvalidCharacters() {
-        let input = "GGGG"
+    @Test("Hex decoding rejects invalid input", arguments: [
+        "GGGG",    // invalid hex characters
+        "FFF",     // odd length
+        "FF!!",    // special characters
+        "#FF5733"  // hash prefix (not valid)
+    ])
+    func testInvalidInput(input: String) {
         let decoded = [UInt8](hexEncoded: input)
-        #expect(decoded == nil)
-    }
-
-    @Test("Hex decoding odd length")
-    func testOddLength() {
-        let input = "FFF"
-        let decoded = [UInt8](hexEncoded: input)
-        #expect(decoded == nil)
-    }
-
-    @Test("Hex decoding special characters")
-    func testInvalidSpecialCharacters() {
-        let input = "FF!!"
-        let decoded = [UInt8](hexEncoded: input)
-        #expect(decoded == nil)
+        #expect(decoded == nil, "\(input) should be rejected")
     }
 
     // MARK: - Binary Data Tests
@@ -308,24 +210,18 @@ struct HexTests {
 
     // MARK: - Format Variations
 
-    @Test("Hex decoding common format variations")
-    func testFormatVariations() {
+    @Test("Hex decoding common format variations", arguments: [
+        "DEAD",      // standard uppercase
+        "0xDEAD",    // with 0x prefix
+        "DE AD",     // with spaces
+        "dead",      // lowercase
+        "DeAd",      // mixed case
+        "0xde ad"    // prefix + lowercase + spaces
+    ])
+    func testFormatVariations(input: String) {
         let expected: [UInt8] = [0xDE, 0xAD]
-
-        // Standard
-        #expect([UInt8](hexEncoded: "DEAD") == expected)
-
-        // With 0x prefix
-        #expect([UInt8](hexEncoded: "0xDEAD") == expected)
-
-        // With spaces
-        #expect([UInt8](hexEncoded: "DE AD") == expected)
-
-        // Lowercase
-        #expect([UInt8](hexEncoded: "dead") == expected)
-
-        // Mixed case
-        #expect([UInt8](hexEncoded: "DeAd") == expected)
+        let decoded = [UInt8](hexEncoded: input)
+        #expect(decoded == expected, "'\(input)' should decode to \(expected)")
     }
 
     @Test("Hex encoding produces consistent output")
