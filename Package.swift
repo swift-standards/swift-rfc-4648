@@ -11,7 +11,8 @@ let package = Package(
         .watchOS(.v11)
     ],
     products: [
-        .library(name: "RFC_4648", targets: ["RFC_4648"])
+        .library(name: "RFC 4648", targets: ["RFC 4648"]),
+        .library(name: "RFC 4648 Foundation", targets: ["RFC 4648 Foundation"])
     ],
     dependencies: [
         .package(url: "https://github.com/swift-standards/swift-standards", from: "0.1.0"),
@@ -19,15 +20,26 @@ let package = Package(
     ],
     targets: [
         .target(
-            name: "RFC_4648",
+            name: "RFC 4648",
             dependencies: [
                 .product(name: "Standards", package: "swift-standards"),
                 .product(name: "INCITS 4 1986", package: "swift-incits-4-1986")
             ]
         ),
+        .target(
+            name: "RFC 4648 Foundation",
+            dependencies: [
+                "RFC 4648",
+                .product(name: "Standards", package: "swift-standards")
+            ]
+        ),
         .testTarget(
-            name: "RFC_4648_Tests",
-            dependencies: ["RFC_4648"]
+            name: "RFC 4648 Tests",
+            dependencies: ["RFC 4648"]
+        ),
+        .testTarget(
+            name: "RFC 4648 Foundation Tests",
+            dependencies: ["RFC 4648 Foundation"]
         )
     ]
 )
