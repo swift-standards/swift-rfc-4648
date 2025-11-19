@@ -4,6 +4,12 @@ import PackageDescription
 // RFC 4648: The Base16, Base32, and Base64 Data Encodings
 let package = Package(
     name: "swift-rfc-4648",
+    platforms: [
+        .macOS(.v15),
+        .iOS(.v18),
+        .tvOS(.v18),
+        .watchOS(.v11)
+    ],
     products: [
         .library(name: "RFC_4648", targets: ["RFC_4648"])
     ],
@@ -16,7 +22,7 @@ let package = Package(
             name: "RFC_4648",
             dependencies: [
                 .product(name: "Standards", package: "swift-standards"),
-                .product(name: "INCITS_4_1986", package: "swift-incits-4-1986")
+                .product(name: "INCITS 4 1986", package: "swift-incits-4-1986")
             ]
         ),
         .testTarget(
