@@ -248,15 +248,394 @@ struct FoundationComparisonTests {
     @Test("Hex uppercase encoding produces valid output")
     func testHexUppercaseEncoding() {
         let testBytes: [UInt8] = [0x00, 0x0F, 0xFF, 0xAB, 0xCD, 0xEF]
-        
+
         let ourHexUpper = String(hexEncoding: testBytes, uppercase: true)
-        
+
         // Verify format is correct (uppercase hex)
         #expect(ourHexUpper == "000FFFABCDEF")
-        
+
         // Verify round-trip (decoding is case-insensitive)
         let decoded = [UInt8](hexEncoded: ourHexUpper)
         #expect(decoded == testBytes)
     }
+
+    // MARK: - Exhaustive Byte Pattern Tests
+
+    @Test("Base64 all single-byte values match Foundation")
+    func testAllSingleByteValues() {
+        for byte in 0...255 {
+            let bytes: [UInt8] = [UInt8(byte)]
+
+            let ourEncoded = String(base64Encoding: bytes)
+            let foundationEncoded = Data(bytes).base64EncodedString()
+
+            #expect(ourEncoded == foundationEncoded,
+                    "Mismatch for byte \(byte): our=\(ourEncoded), foundation=\(foundationEncoded)")
+
+            let ourDecoded = [UInt8](base64Encoded: ourEncoded)
+            #expect(ourDecoded == bytes)
+        }
+    }
+
+    @Test("Base64 all two-byte combinations (sampled)")
+    func testTwoBytePatterns() {
+        // Test representative two-byte patterns (every 17th to keep test fast)
+        for i in stride(from: 0, through: 255, by: 17) {
+            for j in stride(from: 0, through: 255, by: 17) {
+                let bytes: [UInt8] = [UInt8(i), UInt8(j)]
+
+                let ourEncoded = String(base64Encoding: bytes)
+                let foundationEncoded = Data(bytes).base64EncodedString()
+
+                #expect(ourEncoded == foundationEncoded,
+                        "Mismatch for [\(i), \(j)]")
+            }
+        }
+    }
+
+    @Test("Base64 all three-byte combinations (sampled)")
+    func testThreeBytePatterns() {
+        // Test representative three-byte patterns
+        for i in stride(from: 0, through: 255, by: 51) {
+            for j in stride(from: 0, through: 255, by: 51) {
+                for k in stride(from: 0, through: 255, by: 51) {
+                    let bytes: [UInt8] = [UInt8(i), UInt8(j), UInt8(k)]
+
+                    let ourEncoded = String(base64Encoding: bytes)
+                    let foundationEncoded = Data(bytes).base64EncodedString()
+
+                    #expect(ourEncoded == foundationEncoded)
+                }
+            }
+        }
+    }
+
+    // MARK: - Specific Length Tests
+
+    @Test("Base64 specific lengths match Foundation", arguments: [
+        1, 2, 3, 4, 5, 6, 7, 8, 9, 10,
+        15, 16, 17, 31, 32, 33, 63, 64, 65,
+        100, 127, 128, 129, 255, 256, 257,
+        511, 512, 513, 1000, 1023, 1024, 1025
+    ])
+    func testSpecificLengths(length: Int) {
+        let bytes = (0..<length).map { UInt8($0 % 256) }
+
+        let ourEncoded = String(base64Encoding: bytes)
+        let foundationEncoded = Data(bytes).base64EncodedString()
+
+        #expect(ourEncoded == foundationEncoded,
+                "Length \(length): our=\(ourEncoded.prefix(50))..., foundation=\(foundationEncoded.prefix(50))...")
+
+        let ourDecoded = [UInt8](base64Encoded: ourEncoded)
+        let foundationDecoded = Data(base64Encoded: foundationEncoded).map { Array($0) }
+
+        #expect(ourDecoded == foundationDecoded)
+        #expect(ourDecoded == bytes)
+    }
+
+    // MARK: - Random Data Tests
+
+    @Test("Base64 random data patterns match Foundation")
+    func testRandomDataPatterns() {
+        // Use seeded random for reproducibility
+        var generator = SeededRandomNumberGenerator(seed: 42)
+
+        for _ in 0..<100 {
+            let length = Int.random(in: 1...500, using: &generator)
+            let bytes = (0..<length).map { _ in UInt8.random(in: 0...255, using: &generator) }
+
+            let ourEncoded = String(base64Encoding: bytes)
+            let foundationEncoded = Data(bytes).base64EncodedString()
+
+            #expect(ourEncoded == foundationEncoded)
+
+            let ourDecoded = [UInt8](base64Encoded: ourEncoded)
+            #expect(ourDecoded == bytes)
+        }
+    }
+
+    // MARK: - UTF-8 String Tests
+
+    @Test("Base64 UTF-8 strings match Foundation", arguments: [
+        "Hello, World!",
+        "The quick brown fox jumps over the lazy dog",
+        "1234567890",
+        "!@#$%^&*()_+-=[]{}|;':\",./<>?",
+        "αβγδεζηθικλμνξοπρστυφχψω",  // Greek
+        "你好世界",  // Chinese
+        "こんにちは世界",  // Japanese
+        "🚀🌟💻🎉🔥",  // Emojis
+        "Iñtërnâtiônàlizætiøn",  // Accented characters
+        "",  // Empty
+        " ",  // Single space
+        "\n\r\t",  // Whitespace characters
+        String(repeating: "A", count: 1000),  // Long repetitive
+        String(repeating: "😀", count: 100)  // Emoji repetition
+    ])
+    func testUTF8Strings(input: String) {
+        let bytes = Array(input.utf8)
+
+        let ourEncoded = String(base64Encoding: bytes)
+        let foundationEncoded = Data(bytes).base64EncodedString()
+
+        #expect(ourEncoded == foundationEncoded,
+                "Input: \(input.prefix(50))")
+
+        let ourDecoded = [UInt8](base64Encoded: ourEncoded)
+        let foundationDecoded = Data(base64Encoded: foundationEncoded).map { Array($0) }
+
+        #expect(ourDecoded == foundationDecoded)
+        #expect(ourDecoded == bytes)
+    }
+
+    // MARK: - Padding Variation Tests
+
+    @Test("Base64 padding scenarios match Foundation", arguments: [
+        (1, "AA=="),   // 2 padding chars
+        (2, "AAA="),   // 1 padding char
+        (3, "AAAA"),   // 0 padding chars
+        (4, "AAAAAA=="),  // 2 padding chars
+        (5, "AAAAAAA="),  // 1 padding char
+        (6, "AAAAAAAA")   // 0 padding chars
+    ])
+    func testPaddingScenarios(length: Int, expectedPattern: String) {
+        let bytes = Array(repeating: UInt8(0), count: length)
+
+        let ourEncoded = String(base64Encoding: bytes)
+        let foundationEncoded = Data(bytes).base64EncodedString()
+
+        #expect(ourEncoded == foundationEncoded)
+        #expect(ourEncoded == expectedPattern)
+    }
+
+    // MARK: - BinaryInteger Encoding Tests
+
+    @Test("Base64 BinaryInteger UInt8 values match Foundation")
+    func testBinaryIntegerUInt8() {
+        for value in [UInt8.min, 1, 127, 128, 255, UInt8.max] {
+            let bytes = withUnsafeBytes(of: value.bigEndian) { Array($0) }
+
+            let ourEncoded = String(base64: value)
+            let foundationEncoded = Data(bytes).base64EncodedString()
+
+            #expect(ourEncoded == foundationEncoded,
+                    "UInt8(\(value)): our=\(ourEncoded), foundation=\(foundationEncoded)")
+        }
+    }
+
+    @Test("Base64 BinaryInteger UInt16 values match Foundation")
+    func testBinaryIntegerUInt16() {
+        let values: [UInt16] = [0, 1, 255, 256, 32767, 32768, 65535, UInt16.max]
+
+        for value in values {
+            let bytes = withUnsafeBytes(of: value.bigEndian) { Array($0) }
+
+            let ourEncoded = String(base64: value)
+            let foundationEncoded = Data(bytes).base64EncodedString()
+
+            #expect(ourEncoded == foundationEncoded,
+                    "UInt16(\(value)): our=\(ourEncoded), foundation=\(foundationEncoded)")
+        }
+    }
+
+    @Test("Base64 BinaryInteger UInt32 values match Foundation")
+    func testBinaryIntegerUInt32() {
+        let values: [UInt32] = [
+            0, 1, 255, 256, 65535, 65536,
+            123456, 0xDEADBEEF, 0x12345678,
+            UInt32.max
+        ]
+
+        for value in values {
+            let bytes = withUnsafeBytes(of: value.bigEndian) { Array($0) }
+
+            let ourEncoded = String(base64: value)
+            let foundationEncoded = Data(bytes).base64EncodedString()
+
+            #expect(ourEncoded == foundationEncoded,
+                    "UInt32(\(value)): our=\(ourEncoded), foundation=\(foundationEncoded)")
+        }
+    }
+
+    @Test("Base64 BinaryInteger UInt64 values match Foundation")
+    func testBinaryIntegerUInt64() {
+        let values: [UInt64] = [
+            0, 1, 255, 256, 65535, 65536,
+            UInt64(UInt32.max),
+            0x123456789ABCDEF0,
+            UInt64.max
+        ]
+
+        for value in values {
+            let bytes = withUnsafeBytes(of: value.bigEndian) { Array($0) }
+
+            let ourEncoded = String(base64: value)
+            let foundationEncoded = Data(bytes).base64EncodedString()
+
+            #expect(ourEncoded == foundationEncoded,
+                    "UInt64(\(value)): our=\(ourEncoded), foundation=\(foundationEncoded)")
+        }
+    }
+
+    // MARK: - Boundary and Edge Cases
+
+    @Test("Base64 consecutive byte values match Foundation")
+    func testConsecutiveByteValues() {
+        for start in stride(from: 0, through: 200, by: 50) {
+            let length = 55
+            let bytes = (start..<min(start + length, 256)).map { UInt8($0) }
+
+            let ourEncoded = String(base64Encoding: bytes)
+            let foundationEncoded = Data(bytes).base64EncodedString()
+
+            #expect(ourEncoded == foundationEncoded)
+        }
+    }
+
+    @Test("Base64 alternating patterns match Foundation")
+    func testAlternatingPatterns() {
+        let patterns: [[UInt8]] = [
+            Array(repeating: [0x00, 0xFF], count: 50).flatMap { $0 },
+            Array(repeating: [0xAA, 0x55], count: 50).flatMap { $0 },
+            Array(repeating: [0x00, 0x80, 0xFF], count: 50).flatMap { $0 },
+            (0..<100).map { UInt8($0 % 2 == 0 ? 0xFF : 0x00) }
+        ]
+
+        for pattern in patterns {
+            let ourEncoded = String(base64Encoding: pattern)
+            let foundationEncoded = Data(pattern).base64EncodedString()
+
+            #expect(ourEncoded == foundationEncoded)
+        }
+    }
+
+    @Test("Base64 powers of two lengths match Foundation")
+    func testPowersOfTwoLengths() {
+        for power in 0...10 {
+            let length = 1 << power  // 1, 2, 4, 8, 16, 32, 64, 128, 256, 512, 1024
+            let bytes = (0..<length).map { UInt8($0 % 256) }
+
+            let ourEncoded = String(base64Encoding: bytes)
+            let foundationEncoded = Data(bytes).base64EncodedString()
+
+            #expect(ourEncoded == foundationEncoded,
+                    "Length 2^\(power) = \(length)")
+        }
+    }
+
+    // MARK: - Decoding Edge Cases
+
+    @Test("Base64 decode various valid inputs match Foundation")
+    func testDecodeVariousValidInputs() {
+        let validInputs = [
+            "YQ==",  // "a"
+            "YWI=",  // "ab"
+            "YWJj",  // "abc"
+            "YWJjZA==",  // "abcd"
+            "dGVzdA==",  // "test"
+            "SGVsbG8gV29ybGQh",  // "Hello World!"
+            "AAAA",  // zeros
+            "////",  // all 1s in certain bits
+            "++++",  // plus signs
+            "MDEyMzQ1Njc4OQ==",  // "0123456789"
+        ]
+
+        for encoded in validInputs {
+            let ourDecoded = [UInt8](base64Encoded: encoded)
+            let foundationDecoded = Data(base64Encoded: encoded).map { Array($0) }
+
+            #expect(ourDecoded == foundationDecoded,
+                    "Decoding '\(encoded)'")
+        }
+    }
+
+    @Test("Base64 decode with padding matches Foundation")
+    func testDecodeWithPadding() {
+        // Both our implementation and Foundation require proper 4-byte alignment
+        // (padding to make the input length a multiple of 4)
+
+        let testCases: [(padded: String, expected: [UInt8])] = [
+            ("YQ==", Array("a".utf8)),      // 1 byte
+            ("YWI=", Array("ab".utf8)),     // 2 bytes
+            ("YWJj", Array("abc".utf8)),    // 3 bytes (no padding needed)
+            ("YWJjZA==", Array("abcd".utf8))  // 4 bytes
+        ]
+
+        for (padded, expectedBytes) in testCases {
+            // Our implementation
+            let ourDecoded = [UInt8](base64Encoded: padded)
+
+            // Foundation implementation
+            let foundationDecoded = Data(base64Encoded: padded).map { Array($0) }
+
+            // Both should succeed with properly padded input
+            #expect(ourDecoded != nil, "Our implementation should decode '\(padded)'")
+            #expect(foundationDecoded != nil, "Foundation should decode '\(padded)'")
+
+            // Both should produce the same result
+            #expect(ourDecoded == foundationDecoded,
+                    "Results should match for '\(padded)'")
+
+            // Both should match expected output
+            #expect(ourDecoded == expectedBytes,
+                    "Should decode to expected bytes")
+        }
+    }
+
+    // MARK: - Stress Tests
+
+    @Test("Base64 very large data matches Foundation")
+    func testVeryLargeData() {
+        // Test with 10MB of data
+        let largeSize = 10 * 1024 * 1024
+        let largeBytes = (0..<largeSize).map { UInt8($0 % 256) }
+
+        let ourEncoded = String(base64Encoding: largeBytes)
+        let foundationEncoded = Data(largeBytes).base64EncodedString()
+
+        #expect(ourEncoded == foundationEncoded,
+                "10MB encoding should match")
+
+        // Verify length is correct
+        let expectedLength = ((largeSize + 2) / 3) * 4
+        #expect(ourEncoded.count == expectedLength)
+        #expect(foundationEncoded.count == expectedLength)
+    }
+
+    @Test("Base64 repetitive patterns at scale match Foundation")
+    func testRepetitivePatternsAtScale() {
+        let patterns: [[UInt8]] = [
+            Array(repeating: 0x00, count: 10000),
+            Array(repeating: 0xFF, count: 10000),
+            Array(repeating: 0xAA, count: 10000),
+            Array(repeating: 0x55, count: 10000)
+        ]
+
+        for pattern in patterns {
+            let ourEncoded = String(base64Encoding: pattern)
+            let foundationEncoded = Data(pattern).base64EncodedString()
+
+            #expect(ourEncoded == foundationEncoded)
+        }
+    }
 }
+
+// MARK: - Helper Types
+
+/// Seeded random number generator for reproducible tests
+struct SeededRandomNumberGenerator: RandomNumberGenerator {
+    private var state: UInt64
+
+    init(seed: UInt64) {
+        self.state = seed
+    }
+
+    mutating func next() -> UInt64 {
+        // Simple LCG (Linear Congruential Generator)
+        state = state &* 6364136223846793005 &+ 1442695040888963407
+        return state
+    }
+}
+
 #endif

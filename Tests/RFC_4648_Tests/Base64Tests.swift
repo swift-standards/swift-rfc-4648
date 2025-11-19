@@ -31,25 +31,20 @@ struct Base64Tests {
 
     // MARK: - Padding Tests
 
-    @Test("Base64 encoding without padding")
-    func testNoPadding() {
-        let input: [UInt8] = Array("f".utf8)
-        let encoded = String(base64Encoding: input, padding: false)
-        #expect(encoded == "Zg")
-
-        // Should still decode correctly
-        let decoded = [UInt8](base64Encoded: encoded)
-        #expect(decoded == nil) // Base64 requires padding or proper grouping
-    }
-
-    @Test("Base64 encoding with padding")
-    func testWithPadding() {
-        let input: [UInt8] = Array("f".utf8)
-        let encoded = String(base64Encoding: input, padding: true)
-        #expect(encoded == "Zg==")
+    @Test("Base64 padding variations", arguments: [
+        (Array("f".utf8), false, "Zg", nil),           // no padding - decoding fails
+        (Array("f".utf8), true, "Zg==", Array("f".utf8)),   // with padding - succeeds
+        (Array("fo".utf8), false, "Zm8", nil),         // no padding - fails
+        (Array("fo".utf8), true, "Zm8=", Array("fo".utf8)), // with padding - succeeds
+        (Array("foo".utf8), false, "Zm9v", Array("foo".utf8)), // no padding needed
+        (Array("foo".utf8), true, "Zm9v", Array("foo".utf8))  // padding doesn't hurt
+    ])
+    func testPaddingVariations(input: [UInt8], padding: Bool, expectedEncoded: String, expectedDecoded: [UInt8]?) {
+        let encoded = String(base64Encoding: input, padding: padding)
+        #expect(encoded == expectedEncoded)
 
         let decoded = [UInt8](base64Encoded: encoded)
-        #expect(decoded == input)
+        #expect(decoded == expectedDecoded)
     }
 
     // MARK: - Whitespace Handling
@@ -80,29 +75,17 @@ struct Base64Tests {
 
     // MARK: - Binary Data Tests
 
-    @Test("Base64 encoding binary data")
-    func testBinaryData() {
-        let input: [UInt8] = [0x00, 0xFF, 0x80, 0x7F]
+    @Test("Base64 binary data patterns", arguments: [
+        ([0x00, 0xFF, 0x80, 0x7F], nil),  // mixed binary data
+        ([0x00, 0x00, 0x00], "AAAA"),     // all zeros
+        ([0xFF, 0xFF, 0xFF], "////")      // all ones
+    ])
+    func testBinaryDataPatterns(input: [UInt8], expectedEncoded: String?) {
         let encoded = String(base64Encoding: input)
-        let decoded = [UInt8](base64Encoded: encoded)
-        #expect(decoded == input)
-    }
 
-    @Test("Base64 encoding all zeros")
-    func testAllZeros() {
-        let input: [UInt8] = [0x00, 0x00, 0x00]
-        let encoded = String(base64Encoding: input)
-        #expect(encoded == "AAAA")
-
-        let decoded = [UInt8](base64Encoded: encoded)
-        #expect(decoded == input)
-    }
-
-    @Test("Base64 encoding all ones")
-    func testAllOnes() {
-        let input: [UInt8] = [0xFF, 0xFF, 0xFF]
-        let encoded = String(base64Encoding: input)
-        #expect(encoded == "////")
+        if let expected = expectedEncoded {
+            #expect(encoded == expected)
+        }
 
         let decoded = [UInt8](base64Encoded: encoded)
         #expect(decoded == input)

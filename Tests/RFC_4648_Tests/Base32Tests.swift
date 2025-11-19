@@ -58,48 +58,33 @@ struct Base32Tests {
 
     // MARK: - Padding Tests
 
-    @Test("Base32 encoding without padding")
-    func testNoPadding() {
-        let input: [UInt8] = Array("f".utf8)
-        let encoded = String(base32Encoding: input, padding: false)
-        #expect(encoded == "MY")
-        #expect(!encoded.contains("="))
-    }
+    @Test("Base32 padding variations", arguments: [
+        (Array("f".utf8), false, "MY", false),      // no padding
+        (Array("f".utf8), true, "MY======", true),  // with padding
+        (Array("foo".utf8), false, "MZXW6", false), // no padding
+        (Array("foo".utf8), true, "MZXW6===", true) // with padding
+    ])
+    func testPaddingVariations(input: [UInt8], padding: Bool, expectedEncoded: String, shouldHavePadding: Bool) {
+        let encoded = String(base32Encoding: input, padding: padding)
+        #expect(encoded == expectedEncoded)
+        #expect(encoded.contains("=") == shouldHavePadding)
 
-    @Test("Base32 encoding with padding")
-    func testWithPadding() {
-        let input: [UInt8] = Array("f".utf8)
-        let encoded = String(base32Encoding: input, padding: true)
-        #expect(encoded == "MY======")
-    }
-
-    @Test("Base32 decoding with and without padding")
-    func testDecodingPaddingVariations() {
-        let input: [UInt8] = Array("foo".utf8)
-
-        // With padding
-        let withPadding = [UInt8](base32Encoded: "MZXW6===")
-        #expect(withPadding == input)
-
-        // Without padding
-        let withoutPadding = [UInt8](base32Encoded: "MZXW6")
-        #expect(withoutPadding == input)
+        // Decoding should work both with and without padding
+        let decoded = [UInt8](base32Encoded: encoded)
+        #expect(decoded == input)
     }
 
     // MARK: - Whitespace Handling
 
-    @Test("Base32 decoding with whitespace")
-    func testWhitespaceHandling() {
-        let input = "MZXW6===\nYTBOI==="
+    @Test("Base32 whitespace handling", arguments: [
+        "MZXW6===\nYTBOI===",    // newline
+        "MZXW6=== \tMZXQ====",   // space and tab
+        "MZXW6===\t\tMZXQ====",  // multiple tabs
+        "MZXW6=== MZXQ===="      // space only
+    ])
+    func testWhitespaceHandling(input: String) {
         let decoded = [UInt8](base32Encoded: input)
-        #expect(decoded != nil)
-    }
-
-    @Test("Base32 decoding with tabs and spaces")
-    func testTabAndSpaceHandling() {
-        let input = "MZXW6=== \tMZXQ===="
-        let decoded = [UInt8](base32Encoded: input)
-        #expect(decoded != nil)
+        #expect(decoded != nil, "Whitespace should be ignored in '\(input)'")
     }
 
     // MARK: - Invalid Input Tests
@@ -134,28 +119,18 @@ struct Base32Tests {
 
     // MARK: - Binary Data Tests
 
-    @Test("Base32 binary data")
-    func testBinaryData() {
-        let input: [UInt8] = [0x00, 0xFF, 0x80, 0x7F]
+    @Test("Base32 binary data patterns", arguments: [
+        ([0x00, 0xFF, 0x80, 0x7F], nil),           // mixed binary
+        ([0x00, 0x00, 0x00, 0x00, 0x00], "AAAAAAAA"), // all zeros
+        ([0x00, 0x01, 0x02, 0x03, 0x04], nil)      // sequential bytes
+    ])
+    func testBinaryDataPatterns(input: [UInt8], expectedEncoded: String?) {
         let encoded = String(base32Encoding: input)
-        let decoded = [UInt8](base32Encoded: encoded)
-        #expect(decoded == input)
-    }
 
-    @Test("Base32 all zeros")
-    func testAllZeros() {
-        let input: [UInt8] = [0x00, 0x00, 0x00, 0x00, 0x00]
-        let encoded = String(base32Encoding: input)
-        #expect(encoded == "AAAAAAAA")
+        if let expected = expectedEncoded {
+            #expect(encoded == expected)
+        }
 
-        let decoded = [UInt8](base32Encoded: encoded)
-        #expect(decoded == input)
-    }
-
-    @Test("Base32 sequential bytes")
-    func testSequentialBytes() {
-        let input: [UInt8] = [0x00, 0x01, 0x02, 0x03, 0x04]
-        let encoded = String(base32Encoding: input)
         let decoded = [UInt8](base32Encoded: encoded)
         #expect(decoded == input)
     }

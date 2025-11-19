@@ -11,20 +11,17 @@ struct Base64URLTests {
 
     // MARK: - Basic Encoding/Decoding
 
-    @Test("Base64URL empty string")
-    func testEmptyString() {
-        let input: [UInt8] = []
+    @Test("Base64URL basic patterns", arguments: [
+        ([], ""),                 // empty string
+        (Array("hello".utf8), nil) // simple string - verify round-trip only
+    ])
+    func testBasicPatterns(input: [UInt8], expectedEncoded: String?) {
         let encoded = String(base64URLEncoding: input)
-        #expect(encoded == "")
 
-        let decoded = [UInt8](base64URLEncoded: encoded)
-        #expect(decoded == input)
-    }
+        if let expected = expectedEncoded {
+            #expect(encoded == expected)
+        }
 
-    @Test("Base64URL simple string")
-    func testSimpleString() {
-        let input: [UInt8] = Array("hello".utf8)
-        let encoded = String(base64URLEncoding: input)
         let decoded = [UInt8](base64URLEncoded: encoded)
         #expect(decoded == input)
     }
@@ -59,31 +56,21 @@ struct Base64URLTests {
 
     // MARK: - Padding Tests (RFC 7515 recommends no padding)
 
-    @Test("Base64URL default no padding")
-    func testDefaultNoPadding() {
-        let input: [UInt8] = Array("f".utf8)
-        let encoded = String(base64URLEncoding: input)
-        #expect(encoded == "Zg")
-        #expect(!encoded.contains("="))
-    }
-
-    @Test("Base64URL with explicit padding")
-    func testWithPadding() {
-        let input: [UInt8] = Array("f".utf8)
-        let encoded = String(base64URLEncoding: input, padding: true)
-        #expect(encoded == "Zg==")
-    }
-
-    @Test("Base64URL decoding with and without padding", arguments: [
-        ("Zg", "f"),       // no padding
-        ("Zg==", "f"),     // with padding
-        ("Zm8", "fo"),     // no padding
-        ("Zm8=", "fo"),    // with padding
-        ("Zm9v", "foo")    // no padding needed
+    @Test("Base64URL padding variations", arguments: [
+        (Array("f".utf8), false, "Zg", false),    // default: no padding
+        (Array("f".utf8), true, "Zg==", true),    // explicit padding
+        (Array("fo".utf8), false, "Zm8", false),  // no padding
+        (Array("fo".utf8), true, "Zm8=", true),   // with padding
+        (Array("foo".utf8), false, "Zm9v", false) // no padding needed
     ])
-    func testPaddingVariations(encoded: String, expected: String) {
+    func testPaddingVariations(input: [UInt8], padding: Bool, expectedEncoded: String, shouldHavePadding: Bool) {
+        let encoded = String(base64URLEncoding: input, padding: padding)
+        #expect(encoded == expectedEncoded)
+        #expect(encoded.contains("=") == shouldHavePadding)
+
+        // Decoding should work both with and without padding
         let decoded = [UInt8](base64URLEncoded: encoded)
-        #expect(decoded == Array(expected.utf8), "'\(encoded)' should decode to '\(expected)'")
+        #expect(decoded == input)
     }
 
     // MARK: - Whitespace Handling

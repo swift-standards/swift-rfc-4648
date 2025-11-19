@@ -51,14 +51,14 @@ extension [UInt8] {
     }
 }
 
-// MARK: - Hex (RFC 4648 Section 8)
+// MARK: - Base16/Hex (RFC 4648 Section 8)
 
 extension [UInt8] {
-    /// Creates an array from a hexadecimal encoded string (RFC 4648 Section 8)
-    /// - Parameter hexEncoded: Hexadecimal encoded string (case-insensitive)
-    /// - Returns: Decoded bytes, or nil if invalid hex
+    /// Creates an array from a Base16 (hexadecimal) encoded string (RFC 4648 Section 8)
+    /// - Parameter hexEncoded: Base16/hexadecimal encoded string (case-insensitive)
+    /// - Returns: Decoded bytes, or nil if invalid Base16
     public init?(hexEncoded string: String) {
-        guard let decoded = RFC_4648.Hex.decode(string) else { return nil }
+        guard let decoded = RFC_4648.Base16.decode(string) else { return nil }
         self = decoded
     }
 }

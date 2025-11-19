@@ -1,19 +1,21 @@
 //
-//  RFC_4648.Hex.swift
+//  RFC_4648.Base16.swift
 //  swift-rfc-4648
 //
-//  Created by Coen ten Thije Boonkkamp on 17/11/2025.
-//
+//  Base16 (Hexadecimal) encoding per RFC 4648 Section 8
 
 import INCITS_4_1986
 
 extension RFC_4648 {
 
-    // MARK: - Hex (Section 8)
+    // MARK: - Base16 (Section 8)
 
-    /// Hexadecimal encoding (RFC 4648 Section 8)
-    public enum Hex {
-        /// Hexadecimal encoding table - lowercase (RFC 4648 Section 8)
+    /// Base16 (hexadecimal) encoding (RFC 4648 Section 8)
+    ///
+    /// RFC 4648 Section 8 defines "Base 16 Encoding" as the canonical name.
+    /// Commonly known as hexadecimal or hex encoding.
+    public enum Base16 {
+        /// Base16 encoding table - lowercase (RFC 4648 Section 8)
         public static let encodingTable = EncodingTable(
             encode: Array("0123456789abcdef".utf8),
             decode: {
@@ -38,17 +40,17 @@ extension RFC_4648 {
             }()
         )
 
-        /// Hexadecimal encoding table - uppercase (RFC 4648 Section 8)
+        /// Base16 encoding table - uppercase (RFC 4648 Section 8)
         public static let encodingTableUppercase = EncodingTable(
             encode: Array("0123456789ABCDEF".utf8),
             decode: encodingTable.decode  // Share the same decode table
         )
 
-        /// Encodes bytes to hexadecimal
+        /// Encodes bytes to Base16 (hexadecimal)
         /// - Parameters:
         ///   - bytes: The bytes to encode
         ///   - uppercase: Whether to use uppercase hex digits (default: false)
-        /// - Returns: Hex encoded bytes
+        /// - Returns: Base16 encoded bytes
         public static func encode(_ bytes: [UInt8], uppercase: Bool = false) -> [UInt8] {
             guard !bytes.isEmpty else { return [] }
 
@@ -67,8 +69,8 @@ extension RFC_4648 {
             return result
         }
 
-        /// Decodes hexadecimal encoded string (case-insensitive)
-        /// - Parameter string: Hex encoded string
+        /// Decodes Base16 (hexadecimal) encoded string (case-insensitive)
+        /// - Parameter string: Base16 encoded string
         /// - Returns: Decoded bytes, or nil if invalid
         public static func decode(_ string: String) -> [UInt8]? {
             let bytes = Array(string.utf8)
@@ -83,7 +85,7 @@ extension RFC_4648 {
             // Filter out whitespace
             let hexBytes = bytes[startIndex...].filter { !$0.isASCIIWhitespace }
 
-            // Hex encoding must have even number of characters
+            // Base16 encoding must have even number of characters
             guard hexBytes.count % 2 == 0 else { return nil }
 
             let decodeTable = encodingTable.decode
@@ -107,4 +109,10 @@ extension RFC_4648 {
             return result
         }
     }
+
+    /// Ergonomic typealias for Base16 encoding
+    ///
+    /// While RFC 4648 Section 8 officially names this "Base 16 Encoding",
+    /// it's commonly known as hexadecimal. This typealias provides familiar ergonomics.
+    public typealias Hex = Base16
 }

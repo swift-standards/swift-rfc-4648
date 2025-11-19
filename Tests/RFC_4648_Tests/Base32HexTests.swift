@@ -86,48 +86,33 @@ struct Base32HexTests {
 
     // MARK: - Padding Tests
 
-    @Test("Base32-HEX encoding without padding")
-    func testNoPadding() {
-        let input: [UInt8] = Array("f".utf8)
-        let encoded = String(base32HexEncoding: input, padding: false)
-        #expect(encoded == "CO")
-        #expect(!encoded.contains("="))
-    }
+    @Test("Base32-HEX padding variations", arguments: [
+        (Array("f".utf8), false, "CO", false),       // no padding
+        (Array("f".utf8), true, "CO======", true),   // with padding
+        (Array("foo".utf8), false, "CPNMU", false),  // no padding
+        (Array("foo".utf8), true, "CPNMU===", true)  // with padding
+    ])
+    func testPaddingVariations(input: [UInt8], padding: Bool, expectedEncoded: String, shouldHavePadding: Bool) {
+        let encoded = String(base32HexEncoding: input, padding: padding)
+        #expect(encoded == expectedEncoded)
+        #expect(encoded.contains("=") == shouldHavePadding)
 
-    @Test("Base32-HEX encoding with padding")
-    func testWithPadding() {
-        let input: [UInt8] = Array("f".utf8)
-        let encoded = String(base32HexEncoding: input, padding: true)
-        #expect(encoded == "CO======")
-    }
-
-    @Test("Base32-HEX decoding with and without padding")
-    func testDecodingPaddingVariations() {
-        let input: [UInt8] = Array("foo".utf8)
-
-        // With padding
-        let withPadding = [UInt8](base32HexEncoded: "CPNMU===")
-        #expect(withPadding == input)
-
-        // Without padding
-        let withoutPadding = [UInt8](base32HexEncoded: "CPNMU")
-        #expect(withoutPadding == input)
+        // Decoding should work both with and without padding
+        let decoded = [UInt8](base32HexEncoded: encoded)
+        #expect(decoded == input)
     }
 
     // MARK: - Whitespace Handling
 
-    @Test("Base32-HEX decoding with whitespace")
-    func testWhitespaceHandling() {
-        let input = "CPNMU===\nCPNG===="
+    @Test("Base32-HEX whitespace handling", arguments: [
+        "CPNMU===\nCPNG====",   // newline
+        "CPNMU===\t\tCPNG====", // tabs
+        "CPNMU=== CPNG====",    // space
+        "CPNMU=== \t CPNG===="  // mixed
+    ])
+    func testWhitespaceHandling(input: String) {
         let decoded = [UInt8](base32HexEncoded: input)
-        #expect(decoded != nil)
-    }
-
-    @Test("Base32-HEX decoding with tabs")
-    func testTabHandling() {
-        let input = "CPNMU===\t\tCPNG===="
-        let decoded = [UInt8](base32HexEncoded: input)
-        #expect(decoded != nil)
+        #expect(decoded != nil, "Whitespace should be ignored in '\(input)'")
     }
 
     // MARK: - Invalid Input Tests
@@ -146,36 +131,19 @@ struct Base32HexTests {
 
     // MARK: - Binary Data Tests
 
-    @Test("Base32-HEX binary data")
-    func testBinaryData() {
-        let input: [UInt8] = [0x00, 0xFF, 0x80, 0x7F]
+    @Test("Base32-HEX binary data patterns", arguments: [
+        ([0x00, 0xFF, 0x80, 0x7F], nil),              // mixed binary
+        ([0x00, 0x00, 0x00, 0x00, 0x00], "00000000"), // all zeros
+        ([0x00, 0x01, 0x02, 0x03, 0x04], nil),        // sequential
+        ([0xFF, 0xFF, 0xFF, 0xFF, 0xFF], nil)         // all ones
+    ])
+    func testBinaryDataPatterns(input: [UInt8], expectedEncoded: String?) {
         let encoded = String(base32HexEncoding: input)
-        let decoded = [UInt8](base32HexEncoded: encoded)
-        #expect(decoded == input)
-    }
 
-    @Test("Base32-HEX all zeros")
-    func testAllZeros() {
-        let input: [UInt8] = [0x00, 0x00, 0x00, 0x00, 0x00]
-        let encoded = String(base32HexEncoding: input)
-        #expect(encoded == "00000000")
+        if let expected = expectedEncoded {
+            #expect(encoded == expected)
+        }
 
-        let decoded = [UInt8](base32HexEncoded: encoded)
-        #expect(decoded == input)
-    }
-
-    @Test("Base32-HEX sequential bytes")
-    func testSequentialBytes() {
-        let input: [UInt8] = [0x00, 0x01, 0x02, 0x03, 0x04]
-        let encoded = String(base32HexEncoding: input)
-        let decoded = [UInt8](base32HexEncoded: encoded)
-        #expect(decoded == input)
-    }
-
-    @Test("Base32-HEX all ones")
-    func testAllOnes() {
-        let input: [UInt8] = [0xFF, 0xFF, 0xFF, 0xFF, 0xFF]
-        let encoded = String(base32HexEncoding: input)
         let decoded = [UInt8](base32HexEncoded: encoded)
         #expect(decoded == input)
     }
