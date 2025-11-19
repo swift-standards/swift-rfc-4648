@@ -4,248 +4,272 @@
 // Tests for RFC 4648 validation methods
 
 import Testing
+
 @testable import RFC_4648
 
 @Suite("RFC 4648 Validation Tests")
 struct ValidationTests {
 
-    // MARK: - Base64 Validation
+  // MARK: - Base64 Validation
 
-    @Test("Valid Base64 strings", arguments: [
-        "",
-        "Zg==",
-        "Zm8=",
-        "Zm9v",
-        "Zm9vYg==",
-        "Zm9vYmE=",
-        "Zm9vYmFy",
-        "VGhlIHF1aWNrIGJyb3duIGZveCBqdW1wcyBvdmVyIHRoZSBsYXp5IGRvZw=="
+  @Test(
+    "Valid Base64 strings",
+    arguments: [
+      "",
+      "Zg==",
+      "Zm8=",
+      "Zm9v",
+      "Zm9vYg==",
+      "Zm9vYmE=",
+      "Zm9vYmFy",
+      "VGhlIHF1aWNrIGJyb3duIGZveCBqdW1wcyBvdmVyIHRoZSBsYXp5IGRvZw==",
     ])
-    func testValidBase64(input: String) {
-        #expect(RFC_4648.Base64.isValid(input), "\(input) should be valid Base64")
-    }
+  func testValidBase64(input: String) {
+    #expect(RFC_4648.Base64.isValid(input), "\(input) should be valid Base64")
+  }
 
-    @Test("Invalid Base64 strings", arguments: [
-        "!@#$",
-        "Zm9",      // Invalid length
-        "====",     // Only padding
-        "Z!9v",     // Invalid character
-        "Zm9v===",  // Too much padding
+  @Test(
+    "Invalid Base64 strings",
+    arguments: [
+      "!@#$",
+      "Zm9",  // Invalid length
+      "====",  // Only padding
+      "Z!9v",  // Invalid character
+      "Zm9v===",  // Too much padding
     ])
-    func testInvalidBase64(input: String) {
-        #expect(!RFC_4648.Base64.isValid(input), "\(input) should be invalid Base64")
-    }
+  func testInvalidBase64(input: String) {
+    #expect(!RFC_4648.Base64.isValid(input), "\(input) should be invalid Base64")
+  }
 
-    @Test("Base64 validation with whitespace")
-    func testBase64ValidationWithWhitespace() {
-        // Our implementation allows whitespace
-        #expect(RFC_4648.Base64.isValid("Zm9v\nYmFy"))
-        #expect(RFC_4648.Base64.isValid("Zm9v YmFy"))
-        #expect(RFC_4648.Base64.isValid("Zm9v\tYmFy"))
-    }
+  @Test("Base64 validation with whitespace")
+  func testBase64ValidationWithWhitespace() {
+    // Our implementation allows whitespace
+    #expect(RFC_4648.Base64.isValid("Zm9v\nYmFy"))
+    #expect(RFC_4648.Base64.isValid("Zm9v YmFy"))
+    #expect(RFC_4648.Base64.isValid("Zm9v\tYmFy"))
+  }
 
-    // MARK: - Base64URL Validation
+  // MARK: - Base64URL Validation
 
-    @Test("Valid Base64URL strings", arguments: [
-        "",
-        "Zg",
-        "Zm8",
-        "Zm9v",
-        "Zm9vYg",
-        "Zm9vYmE",
-        "Zm9vYmFy",
-        "A-B_"  // Base64URL uses - and _ (length 4 is valid)
+  @Test(
+    "Valid Base64URL strings",
+    arguments: [
+      "",
+      "Zg",
+      "Zm8",
+      "Zm9v",
+      "Zm9vYg",
+      "Zm9vYmE",
+      "Zm9vYmFy",
+      "A-B_",  // Base64URL uses - and _ (length 4 is valid)
     ])
-    func testValidBase64URL(input: String) {
-        #expect(RFC_4648.Base64.URL.isValid(input), "\(input) should be valid Base64URL")
-    }
+  func testValidBase64URL(input: String) {
+    #expect(RFC_4648.Base64.URL.isValid(input), "\(input) should be valid Base64URL")
+  }
 
-    @Test("Invalid Base64URL strings", arguments: [
-        "!@#$",
-        "A+B/C"  // Base64URL doesn't use + and /
+  @Test(
+    "Invalid Base64URL strings",
+    arguments: [
+      "!@#$",
+      "A+B/C",  // Base64URL doesn't use + and /
     ])
-    func testInvalidBase64URL(input: String) {
-        #expect(!RFC_4648.Base64.URL.isValid(input), "\(input) should be invalid Base64URL")
-    }
+  func testInvalidBase64URL(input: String) {
+    #expect(!RFC_4648.Base64.URL.isValid(input), "\(input) should be invalid Base64URL")
+  }
 
-    // MARK: - Base32 Validation
+  // MARK: - Base32 Validation
 
-    @Test("Valid Base32 strings", arguments: [
-        "",
-        "MZXW6===",
-        "MZXW6YTBOI======",
-        "JBSWY3DPEBLW64TMMQ======"
+  @Test(
+    "Valid Base32 strings",
+    arguments: [
+      "",
+      "MZXW6===",
+      "MZXW6YTBOI======",
+      "JBSWY3DPEBLW64TMMQ======",
     ])
-    func testValidBase32(input: String) {
-        #expect(RFC_4648.Base32.isValid(input), "\(input) should be valid Base32")
-    }
+  func testValidBase32(input: String) {
+    #expect(RFC_4648.Base32.isValid(input), "\(input) should be valid Base32")
+  }
 
-    @Test("Base32 case insensitive validation")
-    func testBase32CaseInsensitive() {
-        #expect(RFC_4648.Base32.isValid("MZXW6==="))
-        #expect(RFC_4648.Base32.isValid("mzxw6==="))
-        #expect(RFC_4648.Base32.isValid("MzXw6==="))
-    }
+  @Test("Base32 case insensitive validation")
+  func testBase32CaseInsensitive() {
+    #expect(RFC_4648.Base32.isValid("MZXW6==="))
+    #expect(RFC_4648.Base32.isValid("mzxw6==="))
+    #expect(RFC_4648.Base32.isValid("MzXw6==="))
+  }
 
-    @Test("Invalid Base32 strings", arguments: [
-        "189",      // Base32 doesn't use 0, 1, 8, 9
-        "ABC!@#",   // Invalid characters
-        "====",     // Only padding
+  @Test(
+    "Invalid Base32 strings",
+    arguments: [
+      "189",  // Base32 doesn't use 0, 1, 8, 9
+      "ABC!@#",  // Invalid characters
+      "====",  // Only padding
     ])
-    func testInvalidBase32(input: String) {
-        #expect(!RFC_4648.Base32.isValid(input), "\(input) should be invalid Base32")
-    }
+  func testInvalidBase32(input: String) {
+    #expect(!RFC_4648.Base32.isValid(input), "\(input) should be invalid Base32")
+  }
 
-    // MARK: - Base32-HEX Validation
+  // MARK: - Base32-HEX Validation
 
-    @Test("Valid Base32-HEX strings", arguments: [
-        "",
-        "CPNMU===",
-        "CPNMUOJ1",
-        "91IMOR3F41BMUSJCCG======"
+  @Test(
+    "Valid Base32-HEX strings",
+    arguments: [
+      "",
+      "CPNMU===",
+      "CPNMUOJ1",
+      "91IMOR3F41BMUSJCCG======",
     ])
-    func testValidBase32Hex(input: String) {
-        #expect(RFC_4648.Base32.Hex.isValid(input), "\(input) should be valid Base32-HEX")
-    }
+  func testValidBase32Hex(input: String) {
+    #expect(RFC_4648.Base32.Hex.isValid(input), "\(input) should be valid Base32-HEX")
+  }
 
-    @Test("Base32-HEX case insensitive validation")
-    func testBase32HexCaseInsensitive() {
-        #expect(RFC_4648.Base32.Hex.isValid("CPNMU==="))
-        #expect(RFC_4648.Base32.Hex.isValid("cpnmu==="))
-        #expect(RFC_4648.Base32.Hex.isValid("CpNmU==="))
-    }
+  @Test("Base32-HEX case insensitive validation")
+  func testBase32HexCaseInsensitive() {
+    #expect(RFC_4648.Base32.Hex.isValid("CPNMU==="))
+    #expect(RFC_4648.Base32.Hex.isValid("cpnmu==="))
+    #expect(RFC_4648.Base32.Hex.isValid("CpNmU==="))
+  }
 
-    @Test("Invalid Base32-HEX strings", arguments: [
-        "XYZ",      // Base32-HEX doesn't use W-Z
-        "ABC!@#",   // Invalid characters
-        "====",     // Only padding
+  @Test(
+    "Invalid Base32-HEX strings",
+    arguments: [
+      "XYZ",  // Base32-HEX doesn't use W-Z
+      "ABC!@#",  // Invalid characters
+      "====",  // Only padding
     ])
-    func testInvalidBase32Hex(input: String) {
-        #expect(!RFC_4648.Base32.Hex.isValid(input), "\(input) should be invalid Base32-HEX")
-    }
+  func testInvalidBase32Hex(input: String) {
+    #expect(!RFC_4648.Base32.Hex.isValid(input), "\(input) should be invalid Base32-HEX")
+  }
 
-    // MARK: - Hexadecimal Validation
+  // MARK: - Hexadecimal Validation
 
-    @Test("Valid hexadecimal strings", arguments: [
-        "",
-        "00",
-        "ff",
-        "FF",
-        "deadbeef",
-        "DEADBEEF",
-        "0xdeadbeef",
-        "0xDEADBEEF",
-        "0XDEADBEEF",
-        "0123456789abcdef",
-        "0123456789ABCDEF"
+  @Test(
+    "Valid hexadecimal strings",
+    arguments: [
+      "",
+      "00",
+      "ff",
+      "FF",
+      "deadbeef",
+      "DEADBEEF",
+      "0xdeadbeef",
+      "0xDEADBEEF",
+      "0XDEADBEEF",
+      "0123456789abcdef",
+      "0123456789ABCDEF",
     ])
-    func testValidHex(input: String) {
-        #expect(RFC_4648.Base16.isValid(input), "\(input) should be valid hexadecimal")
-    }
+  func testValidHex(input: String) {
+    #expect(RFC_4648.Base16.isValid(input), "\(input) should be valid hexadecimal")
+  }
 
-    @Test("Invalid hexadecimal strings", arguments: [
-        "ghijk",    // Invalid characters
-        "xyz",      // Invalid characters
-        "fff",      // Odd length
-        "!@#$",     // Invalid characters
+  @Test(
+    "Invalid hexadecimal strings",
+    arguments: [
+      "ghijk",  // Invalid characters
+      "xyz",  // Invalid characters
+      "fff",  // Odd length
+      "!@#$",  // Invalid characters
     ])
-    func testInvalidHex(input: String) {
-        #expect(!RFC_4648.Base16.isValid(input), "\(input) should be invalid hexadecimal")
+  func testInvalidHex(input: String) {
+    #expect(!RFC_4648.Base16.isValid(input), "\(input) should be invalid hexadecimal")
+  }
+
+  @Test("Hexadecimal validation with prefix")
+  func testHexValidationWithPrefix() {
+    #expect(RFC_4648.Base16.isValid("0xdeadbeef"))
+    #expect(RFC_4648.Base16.isValid("0xDEADBEEF"))
+    #expect(RFC_4648.Base16.isValid("0XDEADBEEF"))
+    #expect(RFC_4648.Base16.isValid("deadbeef"))
+  }
+
+  // MARK: - Performance
+
+  @Test("Validation is efficient for large strings")
+  func testValidationPerformance() {
+    let largeValid = String(repeating: "Zm9vYmFy", count: 1000)
+    let largeInvalid = String(repeating: "!!!!", count: 1000)
+
+    #expect(RFC_4648.Base64.isValid(largeValid))
+    #expect(!RFC_4648.Base64.isValid(largeInvalid))
+  }
+
+  // MARK: - Validation vs Decoding
+
+  @Test("Validation matches decoding for Base64")
+  func testBase64ValidationMatchesDecoding() {
+    let testCases = [
+      "Zm9vYmFy",  // valid
+      "!@#$",  // invalid
+      "Zm9",  // invalid length
+      "",  // empty
+    ]
+
+    for test in testCases {
+      let isValid = RFC_4648.Base64.isValid(test)
+      let canDecode = [UInt8](base64Encoded: test) != nil
+
+      #expect(
+        isValid == canDecode,
+        "Validation and decoding disagree for '\(test)'")
     }
+  }
 
-    @Test("Hexadecimal validation with prefix")
-    func testHexValidationWithPrefix() {
-        #expect(RFC_4648.Base16.isValid("0xdeadbeef"))
-        #expect(RFC_4648.Base16.isValid("0xDEADBEEF"))
-        #expect(RFC_4648.Base16.isValid("0XDEADBEEF"))
-        #expect(RFC_4648.Base16.isValid("deadbeef"))
+  @Test("Validation matches decoding for Base32")
+  func testBase32ValidationMatchesDecoding() {
+    let testCases = [
+      "MZXW6===",  // valid
+      "189",  // invalid
+      "",  // empty
+    ]
+
+    for test in testCases {
+      let isValid = RFC_4648.Base32.isValid(test)
+      let canDecode = [UInt8](base32Encoded: test) != nil
+
+      #expect(
+        isValid == canDecode,
+        "Validation and decoding disagree for '\(test)'")
     }
+  }
 
-    // MARK: - Performance
+  @Test("Validation matches decoding for hexadecimal")
+  func testHexValidationMatchesDecoding() {
+    let testCases = [
+      "deadbeef",  // valid
+      "0xdeadbeef",  // valid with prefix
+      "ghijk",  // invalid
+      "fff",  // odd length
+      "",  // empty
+    ]
 
-    @Test("Validation is efficient for large strings")
-    func testValidationPerformance() {
-        let largeValid = String(repeating: "Zm9vYmFy", count: 1000)
-        let largeInvalid = String(repeating: "!!!!", count: 1000)
+    for test in testCases {
+      let isValid = RFC_4648.Base16.isValid(test)
+      let canDecode = [UInt8](hexEncoded: test) != nil
 
-        #expect(RFC_4648.Base64.isValid(largeValid))
-        #expect(!RFC_4648.Base64.isValid(largeInvalid))
+      #expect(
+        isValid == canDecode,
+        "Validation and decoding disagree for '\(test)'")
     }
+  }
 
-    // MARK: - Validation vs Decoding
+  // MARK: - Edge Cases
 
-    @Test("Validation matches decoding for Base64")
-    func testBase64ValidationMatchesDecoding() {
-        let testCases = [
-            "Zm9vYmFy",  // valid
-            "!@#$",      // invalid
-            "Zm9",       // invalid length
-            ""           // empty
-        ]
+  @Test("Empty string validation across all encodings")
+  func testEmptyStringValidation() {
+    let empty = ""
 
-        for test in testCases {
-            let isValid = RFC_4648.Base64.isValid(test)
-            let canDecode = [UInt8](base64Encoded: test) != nil
+    #expect(RFC_4648.Base64.isValid(empty))
+    #expect(RFC_4648.Base64.URL.isValid(empty))
+    #expect(RFC_4648.Base32.isValid(empty))
+    #expect(RFC_4648.Base32.Hex.isValid(empty))
+    #expect(RFC_4648.Base16.isValid(empty))
+  }
 
-            #expect(isValid == canDecode,
-                    "Validation and decoding disagree for '\(test)'")
-        }
-    }
-
-    @Test("Validation matches decoding for Base32")
-    func testBase32ValidationMatchesDecoding() {
-        let testCases = [
-            "MZXW6===",  // valid
-            "189",       // invalid
-            ""           // empty
-        ]
-
-        for test in testCases {
-            let isValid = RFC_4648.Base32.isValid(test)
-            let canDecode = [UInt8](base32Encoded: test) != nil
-
-            #expect(isValid == canDecode,
-                    "Validation and decoding disagree for '\(test)'")
-        }
-    }
-
-    @Test("Validation matches decoding for hexadecimal")
-    func testHexValidationMatchesDecoding() {
-        let testCases = [
-            "deadbeef",  // valid
-            "0xdeadbeef",// valid with prefix
-            "ghijk",     // invalid
-            "fff",       // odd length
-            ""           // empty
-        ]
-
-        for test in testCases {
-            let isValid = RFC_4648.Base16.isValid(test)
-            let canDecode = [UInt8](hexEncoded: test) != nil
-
-            #expect(isValid == canDecode,
-                    "Validation and decoding disagree for '\(test)'")
-        }
-    }
-
-    // MARK: - Edge Cases
-
-    @Test("Empty string validation across all encodings")
-    func testEmptyStringValidation() {
-        let empty = ""
-
-        #expect(RFC_4648.Base64.isValid(empty))
-        #expect(RFC_4648.Base64.URL.isValid(empty))
-        #expect(RFC_4648.Base32.isValid(empty))
-        #expect(RFC_4648.Base32.Hex.isValid(empty))
-        #expect(RFC_4648.Base16.isValid(empty))
-    }
-
-    @Test("Unicode characters in validation")
-    func testUnicodeInValidation() {
-        // Non-ASCII characters should fail validation
-        #expect(!RFC_4648.Base64.isValid("Zm9v🚀"))
-        #expect(!RFC_4648.Base32.isValid("MZXW6😀"))
-        #expect(!RFC_4648.Base16.isValid("dead你好"))
-    }
+  @Test("Unicode characters in validation")
+  func testUnicodeInValidation() {
+    // Non-ASCII characters should fail validation
+    #expect(!RFC_4648.Base64.isValid("Zm9v🚀"))
+    #expect(!RFC_4648.Base32.isValid("MZXW6😀"))
+    #expect(!RFC_4648.Base16.isValid("dead你好"))
+  }
 }
