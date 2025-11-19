@@ -6,6 +6,7 @@
 import Testing
 import RFC_4648
 #if canImport(Foundation)
+import Foundation
 
 @Suite("Foundation Comparison Tests")
 struct FoundationComparisonTests {
