@@ -25,7 +25,7 @@ import Testing
         Array("foobar".utf8),
         [0x00, 0xFF, 0x80, 0x7F],
         Array("The quick brown fox jumps over the lazy dog".utf8),
-        (0..<100).map { UInt8($0 % 256) }
+        (0..<100).map { UInt8($0 % 256) },
       ]
 
       for bytes in testCases {
@@ -49,7 +49,7 @@ import Testing
         "Zm9vYg==",
         "Zm9vYmE=",
         "Zm9vYmFy",
-        "VGhlIHF1aWNrIGJyb3duIGZveCBqdW1wcyBvdmVyIHRoZSBsYXp5IGRvZw=="
+        "VGhlIHF1aWNrIGJyb3duIGZveCBqdW1wcyBvdmVyIHRoZSBsYXp5IGRvZw==",
       ]
 
       for encoded in testCases {
@@ -69,7 +69,7 @@ import Testing
         Array("Hello, World!".utf8),
         (0..<255).map { UInt8($0) },
         Array(repeating: 0xFF, count: 100),
-        Array(repeating: 0x00, count: 100)
+        Array(repeating: 0x00, count: 100),
       ]
 
       for bytes in testBytes {
@@ -326,7 +326,7 @@ import Testing
         1, 2, 3, 4, 5, 6, 7, 8, 9, 10,
         15, 16, 17, 31, 32, 33, 63, 64, 65,
         100, 127, 128, 129, 255, 256, 257,
-        511, 512, 513, 1000, 1023, 1024, 1025
+        511, 512, 513, 1000, 1023, 1024, 1025,
       ]
     )
     func specificLengths(length: Int) {
@@ -386,7 +386,7 @@ import Testing
         " ",  // Single space
         "\n\r\t",  // Whitespace characters
         String(repeating: "A", count: 1000),  // Long repetitive
-        String(repeating: "😀", count: 100)  // Emoji repetition
+        String(repeating: "😀", count: 100),  // Emoji repetition
       ]
     )
     func uTF8Strings(input: String) {
@@ -417,7 +417,7 @@ import Testing
         (3, "AAAA"),  // 0 padding chars
         (4, "AAAAAA=="),  // 2 padding chars
         (5, "AAAAAAA="),  // 1 padding char
-        (6, "AAAAAAAA")  // 0 padding chars
+        (6, "AAAAAAAA"),  // 0 padding chars
       ]
     )
     func paddingScenarios(length: Int, expectedPattern: String) {
@@ -469,7 +469,7 @@ import Testing
       let values: [UInt32] = [
         0, 1, 255, 256, 65535, 65536,
         123_456, 0xDEAD_BEEF, 0x1234_5678,
-        UInt32.max
+        UInt32.max,
       ]
 
       for value in values {
@@ -491,7 +491,7 @@ import Testing
         0, 1, 255, 256, 65535, 65536,
         UInt64(UInt32.max),
         0x1234_5678_9ABC_DEF0,
-        UInt64.max
+        UInt64.max,
       ]
 
       for value in values {
@@ -528,7 +528,7 @@ import Testing
         Array(repeating: [0x00, 0xFF], count: 50).flatMap { $0 },
         Array(repeating: [0xAA, 0x55], count: 50).flatMap { $0 },
         Array(repeating: [0x00, 0x80, 0xFF], count: 50).flatMap { $0 },
-        (0..<100).map { UInt8($0 % 2 == 0 ? 0xFF : 0x00) }
+        (0..<100).map { UInt8($0 % 2 == 0 ? 0xFF : 0x00) },
       ]
 
       for pattern in patterns {
@@ -569,7 +569,7 @@ import Testing
         "AAAA",  // zeros
         "////",  // all 1s in certain bits
         "++++",  // plus signs
-        "MDEyMzQ1Njc4OQ=="  // "0123456789"
+        "MDEyMzQ1Njc4OQ==",  // "0123456789"
       ]
 
       for encoded in validInputs {
@@ -592,7 +592,7 @@ import Testing
         ("YQ==", Array("a".utf8)),  // 1 byte
         ("YWI=", Array("ab".utf8)),  // 2 bytes
         ("YWJj", Array("abc".utf8)),  // 3 bytes (no padding needed)
-        ("YWJjZA==", Array("abcd".utf8))  // 4 bytes
+        ("YWJjZA==", Array("abcd".utf8)),  // 4 bytes
       ]
 
       for (padded, expectedBytes) in testCases {
@@ -648,7 +648,7 @@ import Testing
         Array(repeating: 0x00, count: 10000),
         Array(repeating: 0xFF, count: 10000),
         Array(repeating: 0xAA, count: 10000),
-        Array(repeating: 0x55, count: 10000)
+        Array(repeating: 0x55, count: 10000),
       ]
 
       for pattern in patterns {

@@ -19,7 +19,7 @@ struct HexTests {
       ("foo", "666f6f"),
       ("foob", "666f6f62"),
       ("fooba", "666f6f6261"),
-      ("foobar", "666f6f626172")
+      ("foobar", "666f6f626172"),
     ]
   )
   func rFCVectors(input: String, expected: String) {
@@ -53,7 +53,7 @@ struct HexTests {
       "ffab",  // lowercase
       "FFAB",  // uppercase
       "FfAb",  // mixed case
-      "fFaB"  // random mixed case
+      "fFaB",  // random mixed case
     ]
   )
   func decodingCaseInsensitive(encoded: String) {
@@ -71,7 +71,7 @@ struct HexTests {
       ("0XFF", [0xFF]),
       ("FF", [0xFF]),
       ("0xDEADBEEF", [0xDE, 0xAD, 0xBE, 0xEF]),
-      ("0Xdeadbeef", [0xDE, 0xAD, 0xBE, 0xEF])
+      ("0Xdeadbeef", [0xDE, 0xAD, 0xBE, 0xEF]),
     ]
   )
   func prefixHandling(input: String, expected: [UInt8]) {
@@ -88,7 +88,7 @@ struct HexTests {
       "DE\nAD\nBE\nEF",  // newlines
       "DE\tAD\tBE\tEF",  // tabs
       "DE AD\nBE\tEF",  // mixed whitespace
-      "DEADBEEF"  // no whitespace
+      "DEADBEEF",  // no whitespace
     ]
   )
   func whitespaceHandling(input: String) {
@@ -105,7 +105,7 @@ struct HexTests {
       "GGGG",  // invalid hex characters
       "FFF",  // odd length
       "FF!!",  // special characters
-      "#FF5733"  // hash prefix (not valid)
+      "#FF5733",  // hash prefix (not valid)
     ]
   )
   func invalidInput(input: String) {
@@ -164,7 +164,7 @@ struct HexTests {
       0xE3, 0xB0, 0xC4, 0x42, 0x98, 0xFC, 0x1C, 0x14,
       0x9A, 0xFB, 0xF4, 0xC8, 0x99, 0x6F, 0xB9, 0x24,
       0x27, 0xAE, 0x41, 0xE4, 0x64, 0x9B, 0x93, 0x4C,
-      0xA4, 0x95, 0x99, 0x1B, 0x78, 0x52, 0xB8, 0x55
+      0xA4, 0x95, 0x99, 0x1B, 0x78, 0x52, 0xB8, 0x55,
     ]
 
     let encoded = String(hexEncoding: hash)
@@ -179,7 +179,7 @@ struct HexTests {
     // Typical UUID: 16 bytes
     let uuid: [UInt8] = [
       0x12, 0x34, 0x56, 0x78, 0x9A, 0xBC, 0xDE, 0xF0,
-      0x12, 0x34, 0x56, 0x78, 0x9A, 0xBC, 0xDE, 0xF0
+      0x12, 0x34, 0x56, 0x78, 0x9A, 0xBC, 0xDE, 0xF0,
     ]
 
     let encoded = String(hexEncoding: uuid)
@@ -232,7 +232,7 @@ struct HexTests {
       "DE AD",  // with spaces
       "dead",  // lowercase
       "DeAd",  // mixed case
-      "0xde ad"  // prefix + lowercase + spaces
+      "0xde ad",  // prefix + lowercase + spaces
     ]
   )
   func formatVariations(input: String) {
