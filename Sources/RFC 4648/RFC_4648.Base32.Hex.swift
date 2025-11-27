@@ -24,8 +24,12 @@ extension RFC_4648.Base32 {
     ///   - bytes: The bytes to encode
     ///   - padding: Whether to include padding (default: true)
     /// - Returns: Base32-HEX encoded bytes
-    public static func encode(_ bytes: [UInt8], padding: Bool = true) -> [UInt8] {
+    public static func encode<Bytes: Collection>(
+      _ bytes: Bytes,
+      padding: Bool = true
+    ) -> [UInt8] where Bytes.Element == UInt8 {
       guard !bytes.isEmpty else { return [] }
+      let bytes = Array(bytes)
 
       var result = [UInt8]()
       result.reserveCapacity(((bytes.count + 4) / 5) * 8)
@@ -107,7 +111,7 @@ extension RFC_4648.Base32 {
     /// Decodes Base32-HEX encoded string (case-insensitive)
     /// - Parameter string: Base32-HEX encoded string
     /// - Returns: Decoded bytes, or nil if invalid
-    public static func decode(_ string: String) -> [UInt8]? {
+    public static func decode(_ string: some StringProtocol) -> [UInt8]? {
       let bytes = Array(string.utf8)
       guard !bytes.isEmpty else { return [] }
 
@@ -118,7 +122,7 @@ extension RFC_4648.Base32 {
       var index = 0
       while index < bytes.count {
         // Skip whitespace
-        while index < bytes.count && bytes[index].isASCIIWhitespace {
+        while index < bytes.count && bytes[index].ascii.isWhitespace {
           index += 1
         }
         if index >= bytes.count { break }
@@ -160,6 +164,30 @@ extension RFC_4648.Base32 {
       }
 
       return result
+    }
+
+    // MARK: - Collection Wrapper
+
+    /// Wrapper for Base32-HEX operations on byte collections
+    public struct CollectionWrapper<Bytes: Collection> where Bytes.Element == UInt8 {
+      public let bytes: Bytes
+
+      @inlinable
+      public init(_ bytes: Bytes) {
+        self.bytes = bytes
+      }
+
+      /// Encodes bytes to Base32-HEX string
+      @inlinable
+      public func callAsFunction(padding: Bool = true) -> String {
+        encoded(padding: padding)
+      }
+
+      /// Encodes bytes to Base32-HEX string
+      @inlinable
+      public func encoded(padding: Bool = true) -> String {
+        String(decoding: RFC_4648.Base32.Hex.encode(bytes, padding: padding), as: UTF8.self)
+      }
     }
   }
 }

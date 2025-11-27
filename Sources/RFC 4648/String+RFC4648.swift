@@ -10,7 +10,10 @@ extension String {
   /// - Parameters:
   ///   - base64Encoding: The bytes to encode
   ///   - padding: Whether to include padding characters (default: true)
-  public init(base64Encoding bytes: [UInt8], padding: Bool = true) {
+  public init<Bytes: Collection>(
+    base64Encoding bytes: Bytes,
+    padding: Bool = true
+  ) where Bytes.Element == UInt8 {
     let encoded = RFC_4648.Base64.encode(bytes, padding: padding)
     self = String(decoding: encoded, as: UTF8.self)
   }
@@ -47,7 +50,10 @@ extension String {
   /// - Parameters:
   ///   - base64URLEncoding: The bytes to encode
   ///   - padding: Whether to include padding characters (default: false per RFC 7515)
-  public init(base64URLEncoding bytes: [UInt8], padding: Bool = false) {
+  public init<Bytes: Collection>(
+    base64URLEncoding bytes: Bytes,
+    padding: Bool = false
+  ) where Bytes.Element == UInt8 {
     let encoded = RFC_4648.Base64.URL.encode(bytes, padding: padding)
     self = String(decoding: encoded, as: UTF8.self)
   }
@@ -84,7 +90,10 @@ extension String {
   /// - Parameters:
   ///   - base32Encoding: The bytes to encode
   ///   - padding: Whether to include padding characters (default: true)
-  public init(base32Encoding bytes: [UInt8], padding: Bool = true) {
+  public init<Bytes: Collection>(
+    base32Encoding bytes: Bytes,
+    padding: Bool = true
+  ) where Bytes.Element == UInt8 {
     let encoded = RFC_4648.Base32.encode(bytes, padding: padding)
     self = String(decoding: encoded, as: UTF8.self)
   }
@@ -121,7 +130,10 @@ extension String {
   /// - Parameters:
   ///   - base32HexEncoding: The bytes to encode
   ///   - padding: Whether to include padding characters (default: true)
-  public init(base32HexEncoding bytes: [UInt8], padding: Bool = true) {
+  public init<Bytes: Collection>(
+    base32HexEncoding bytes: Bytes,
+    padding: Bool = true
+  ) where Bytes.Element == UInt8 {
     let encoded = RFC_4648.Base32.Hex.encode(bytes, padding: padding)
     self = String(decoding: encoded, as: UTF8.self)
   }
@@ -157,7 +169,10 @@ extension String {
   /// - Parameters:
   ///   - hexEncoding: The bytes to encode
   ///   - uppercase: Whether to use uppercase hex digits (default: false)
-  public init(hexEncoding bytes: [UInt8], uppercase: Bool = false) {
+  public init<Bytes: Collection>(
+    hexEncoding bytes: Bytes,
+    uppercase: Bool = false
+  ) where Bytes.Element == UInt8 {
     let encoded = RFC_4648.Base16.encode(bytes, uppercase: uppercase)
     self = String(decoding: encoded, as: UTF8.self)
   }

@@ -51,7 +51,10 @@ extension RFC_4648 {
     ///   - bytes: The bytes to encode
     ///   - uppercase: Whether to use uppercase hex digits (default: false)
     /// - Returns: Base16 encoded bytes
-    public static func encode(_ bytes: [UInt8], uppercase: Bool = false) -> [UInt8] {
+    public static func encode<Bytes: Collection>(
+      _ bytes: Bytes,
+      uppercase: Bool = false
+    ) -> [UInt8] where Bytes.Element == UInt8 {
       guard !bytes.isEmpty else { return [] }
 
       var result = [UInt8]()
@@ -72,7 +75,7 @@ extension RFC_4648 {
     /// Decodes Base16 (hexadecimal) encoded string (case-insensitive)
     /// - Parameter string: Base16 encoded string
     /// - Returns: Decoded bytes, or nil if invalid
-    public static func decode(_ string: String) -> [UInt8]? {
+    public static func decode(_ string: some StringProtocol) -> [UInt8]? {
       let bytes = Array(string.utf8)
       guard !bytes.isEmpty else { return [] }
 
@@ -83,7 +86,7 @@ extension RFC_4648 {
       }
 
       // Filter out whitespace
-      let hexBytes = bytes[startIndex...].filter { !$0.isASCIIWhitespace }
+      let hexBytes = bytes[startIndex...].filter { !$0.ascii.isWhitespace }
 
       // Base16 encoding must have even number of characters
       guard hexBytes.count % 2 == 0 else { return nil }
@@ -107,6 +110,30 @@ extension RFC_4648 {
       }
 
       return result
+    }
+
+    // MARK: - Collection Wrapper
+
+    /// Wrapper for Base16/Hex operations on byte collections
+    public struct CollectionWrapper<Bytes: Collection> where Bytes.Element == UInt8 {
+      public let bytes: Bytes
+
+      @inlinable
+      public init(_ bytes: Bytes) {
+        self.bytes = bytes
+      }
+
+      /// Encodes bytes to hexadecimal string
+      @inlinable
+      public func callAsFunction(uppercase: Bool = false) -> String {
+        encoded(uppercase: uppercase)
+      }
+
+      /// Encodes bytes to hexadecimal string
+      @inlinable
+      public func encoded(uppercase: Bool = false) -> String {
+        String(decoding: RFC_4648.Base16.encode(bytes, uppercase: uppercase), as: UTF8.self)
+      }
     }
   }
 

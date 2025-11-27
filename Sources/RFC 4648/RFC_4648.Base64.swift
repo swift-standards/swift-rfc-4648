@@ -22,8 +22,12 @@ extension RFC_4648 {
     ///   - bytes: The bytes to encode
     ///   - padding: Whether to include padding characters (default: true)
     /// - Returns: Base64 encoded bytes
-    public static func encode(_ bytes: [UInt8], padding: Bool = true) -> [UInt8] {
+    public static func encode<Bytes: Collection>(
+      _ bytes: Bytes,
+      padding: Bool = true
+    ) -> [UInt8] where Bytes.Element == UInt8 {
       guard !bytes.isEmpty else { return [] }
+      let bytes = Array(bytes)
 
       var result = [UInt8]()
       result.reserveCapacity(((bytes.count + 2) / 3) * 4)
@@ -63,7 +67,7 @@ extension RFC_4648 {
     /// Decodes Base64 encoded string
     /// - Parameter string: Base64 encoded string
     /// - Returns: Decoded bytes, or nil if invalid
-    public static func decode(_ string: String) -> [UInt8]? {
+    public static func decode(_ string: some StringProtocol) -> [UInt8]? {
       let bytes = Array(string.utf8)
       guard !bytes.isEmpty else { return [] }
 
@@ -74,7 +78,7 @@ extension RFC_4648 {
       var index = 0
       while index < bytes.count {
         // Skip whitespace
-        while index < bytes.count && bytes[index].isASCIIWhitespace {
+        while index < bytes.count && bytes[index].ascii.isWhitespace {
           index += 1
         }
         if index >= bytes.count { break }
@@ -105,6 +109,30 @@ extension RFC_4648 {
       }
 
       return result
+    }
+
+    // MARK: - Collection Wrapper
+
+    /// Wrapper for Base64 operations on byte collections
+    public struct CollectionWrapper<Bytes: Collection> where Bytes.Element == UInt8 {
+      public let bytes: Bytes
+
+      @inlinable
+      public init(_ bytes: Bytes) {
+        self.bytes = bytes
+      }
+
+      /// Encodes bytes to Base64 string
+      @inlinable
+      public func callAsFunction(padding: Bool = true) -> String {
+        encoded(padding: padding)
+      }
+
+      /// Encodes bytes to Base64 string
+      @inlinable
+      public func encoded(padding: Bool = true) -> String {
+        String(decoding: RFC_4648.Base64.encode(bytes, padding: padding), as: UTF8.self)
+      }
     }
   }
 }

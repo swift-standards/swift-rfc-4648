@@ -1,7 +1,7 @@
-// [UInt8]+RFC4648.swift
+// Collection+RFC4648.swift
 // swift-rfc-4648
 //
-// Array decoding extensions using RFC_4648 primitives
+// Collection extensions and array decoding using RFC_4648 primitives
 
 // MARK: - Base64 (RFC 4648 Section 4)
 
@@ -9,7 +9,7 @@ extension [UInt8] {
   /// Creates an array from a Base64 encoded string (RFC 4648 Section 4)
   /// - Parameter base64Encoded: Base64 encoded string
   /// - Returns: Decoded bytes, or nil if invalid Base64
-  public init?(base64Encoded string: String) {
+  public init?(base64Encoded string: some StringProtocol) {
     guard let decoded = RFC_4648.Base64.decode(string) else { return nil }
     self = decoded
   }
@@ -21,7 +21,7 @@ extension [UInt8] {
   /// Creates an array from a Base64URL encoded string (RFC 4648 Section 5)
   /// - Parameter base64URLEncoded: Base64URL encoded string
   /// - Returns: Decoded bytes, or nil if invalid Base64URL
-  public init?(base64URLEncoded string: String) {
+  public init?(base64URLEncoded string: some StringProtocol) {
     guard let decoded = RFC_4648.Base64.URL.decode(string) else { return nil }
     self = decoded
   }
@@ -33,7 +33,7 @@ extension [UInt8] {
   /// Creates an array from a Base32 encoded string (RFC 4648 Section 6)
   /// - Parameter base32Encoded: Base32 encoded string (case-insensitive)
   /// - Returns: Decoded bytes, or nil if invalid Base32
-  public init?(base32Encoded string: String) {
+  public init?(base32Encoded string: some StringProtocol) {
     guard let decoded = RFC_4648.Base32.decode(string) else { return nil }
     self = decoded
   }
@@ -45,7 +45,7 @@ extension [UInt8] {
   /// Creates an array from a Base32-HEX encoded string (RFC 4648 Section 7)
   /// - Parameter base32HexEncoded: Base32-HEX encoded string (case-insensitive)
   /// - Returns: Decoded bytes, or nil if invalid Base32-HEX
-  public init?(base32HexEncoded string: String) {
+  public init?(base32HexEncoded string: some StringProtocol) {
     guard let decoded = RFC_4648.Base32.Hex.decode(string) else { return nil }
     self = decoded
   }
@@ -57,8 +57,58 @@ extension [UInt8] {
   /// Creates an array from a Base16 (hexadecimal) encoded string (RFC 4648 Section 8)
   /// - Parameter hexEncoded: Base16/hexadecimal encoded string (case-insensitive)
   /// - Returns: Decoded bytes, or nil if invalid Base16
-  public init?(hexEncoded string: String) {
+  public init?(hexEncoded string: some StringProtocol) {
     guard let decoded = RFC_4648.Base16.decode(string) else { return nil }
     self = decoded
+  }
+}
+
+// MARK: - Namespace Access (INCITS Pattern)
+
+extension Collection where Element == UInt8 {
+  /// Access to Base64 instance operations
+  ///
+  /// ## Usage
+  ///
+  /// ```swift
+  /// let bytes: [UInt8] = [72, 101, 108, 108, 111]
+  /// bytes.base64()  // "SGVsbG8="
+  /// bytes.base64(padding: false)  // "SGVsbG8"
+  /// ```
+  @inlinable
+  public var base64: RFC_4648.Base64.CollectionWrapper<Self> {
+    RFC_4648.Base64.CollectionWrapper(self)
+  }
+
+  /// Access to Base64URL instance operations
+  @inlinable
+  public var base64URL: RFC_4648.Base64.URL.CollectionWrapper<Self> {
+    RFC_4648.Base64.URL.CollectionWrapper(self)
+  }
+
+  /// Access to Base32 instance operations
+  @inlinable
+  public var base32: RFC_4648.Base32.CollectionWrapper<Self> {
+    RFC_4648.Base32.CollectionWrapper(self)
+  }
+
+  /// Access to Base32Hex instance operations
+  @inlinable
+  public var base32Hex: RFC_4648.Base32.Hex.CollectionWrapper<Self> {
+    RFC_4648.Base32.Hex.CollectionWrapper(self)
+  }
+
+  /// Access to Base16/Hex instance operations
+  ///
+  /// ## Usage
+  ///
+  /// ```swift
+  /// let bytes: [UInt8] = [0xde, 0xad, 0xbe, 0xef]
+  /// bytes.hex()  // "deadbeef"
+  /// bytes.hex(uppercase: true)  // "DEADBEEF"
+  /// ```
+  @inlinable
+  public var hex: RFC_4648.Base16.CollectionWrapper<Self> {
+    RFC_4648.Base16.CollectionWrapper(self)
   }
 }

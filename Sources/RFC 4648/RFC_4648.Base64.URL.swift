@@ -23,8 +23,12 @@ extension RFC_4648.Base64 {
     ///   - bytes: The bytes to encode
     ///   - padding: Whether to include padding (default: false per RFC 7515)
     /// - Returns: Base64URL encoded bytes
-    public static func encode(_ bytes: [UInt8], padding: Bool = false) -> [UInt8] {
+    public static func encode<Bytes: Collection>(
+      _ bytes: Bytes,
+      padding: Bool = false
+    ) -> [UInt8] where Bytes.Element == UInt8 {
       guard !bytes.isEmpty else { return [] }
+      let bytes = Array(bytes)
 
       var result = [UInt8]()
       result.reserveCapacity(((bytes.count + 2) / 3) * 4)
@@ -64,7 +68,7 @@ extension RFC_4648.Base64 {
     /// Decodes Base64URL encoded string
     /// - Parameter string: Base64URL encoded string
     /// - Returns: Decoded bytes, or nil if invalid
-    public static func decode(_ string: String) -> [UInt8]? {
+    public static func decode(_ string: some StringProtocol) -> [UInt8]? {
       let bytes = Array(string.utf8)
       guard !bytes.isEmpty else { return [] }
 
@@ -75,7 +79,7 @@ extension RFC_4648.Base64 {
       var index = 0
       while index < bytes.count {
         // Skip whitespace
-        while index < bytes.count && bytes[index].isASCIIWhitespace {
+        while index < bytes.count && bytes[index].ascii.isWhitespace {
           index += 1
         }
         if index >= bytes.count { break }
@@ -117,6 +121,30 @@ extension RFC_4648.Base64 {
       }
 
       return result
+    }
+
+    // MARK: - Collection Wrapper
+
+    /// Wrapper for Base64URL operations on byte collections
+    public struct CollectionWrapper<Bytes: Collection> where Bytes.Element == UInt8 {
+      public let bytes: Bytes
+
+      @inlinable
+      public init(_ bytes: Bytes) {
+        self.bytes = bytes
+      }
+
+      /// Encodes bytes to Base64URL string
+      @inlinable
+      public func callAsFunction(padding: Bool = false) -> String {
+        encoded(padding: padding)
+      }
+
+      /// Encodes bytes to Base64URL string
+      @inlinable
+      public func encoded(padding: Bool = false) -> String {
+        String(decoding: RFC_4648.Base64.URL.encode(bytes, padding: padding), as: UTF8.self)
+      }
     }
   }
 }
