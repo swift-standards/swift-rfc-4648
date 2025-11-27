@@ -165,13 +165,13 @@ struct DataEncodingTests {
 
     switch encoding {
     case "base64URL":
-      #expect(empty.base64URLEncodedString() == "")
+      #expect(empty.base64URLEncodedString().isEmpty)
     case "base32":
-      #expect(empty.base32EncodedString() == "")
+      #expect(empty.base32EncodedString().isEmpty)
     case "base32Hex":
-      #expect(empty.base32HexEncodedString() == "")
+      #expect(empty.base32HexEncodedString().isEmpty)
     case "hex":
-      #expect(empty.hexEncodedString() == "")
+      #expect(empty.hexEncodedString().isEmpty)
     default:
       break
     }

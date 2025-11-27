@@ -187,7 +187,7 @@ import Testing
       let foundationEncoded = Data(emptyBytes).base64EncodedString()
 
       #expect(ourEncoded == foundationEncoded)
-      #expect(ourEncoded == "")
+      #expect(ourEncoded.isEmpty)
 
       let ourDecoded = [UInt8](base64Encoded: "")
       let foundationDecoded = Data(base64Encoded: "").map { Array($0) }
