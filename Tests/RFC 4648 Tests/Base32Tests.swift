@@ -19,7 +19,7 @@ struct Base32Tests {
       ("foo", "MZXW6==="),
       ("foob", "MZXW6YQ="),
       ("fooba", "MZXW6YTB"),
-      ("foobar", "MZXW6YTBOI======"),
+      ("foobar", "MZXW6YTBOI======")
     ]
   )
   func rFCVectors(input: String, expected: String) {
@@ -39,7 +39,7 @@ struct Base32Tests {
       "MZXW6===",  // uppercase
       "mzxw6===",  // lowercase
       "MzXw6===",  // mixed case
-      "mZxW6===",  // random mixed case
+      "mZxW6==="  // random mixed case
     ]
   )
   func caseInsensitive(encoded: String) {
@@ -69,7 +69,7 @@ struct Base32Tests {
       (Array("f".utf8), false, "MY", false),  // no padding
       (Array("f".utf8), true, "MY======", true),  // with padding
       (Array("foo".utf8), false, "MZXW6", false),  // no padding
-      (Array("foo".utf8), true, "MZXW6===", true),  // with padding
+      (Array("foo".utf8), true, "MZXW6===", true)  // with padding
     ]
   )
   func paddingVariations(
@@ -92,7 +92,7 @@ struct Base32Tests {
       "MZXW6===\nYTBOI===",  // newline
       "MZXW6=== \tMZXQ====",  // space and tab
       "MZXW6===\t\tMZXQ====",  // multiple tabs
-      "MZXW6=== MZXQ====",  // space only
+      "MZXW6=== MZXQ===="  // space only
     ]
   )
   func whitespaceHandling(input: String) {
@@ -111,7 +111,7 @@ struct Base32Tests {
       "MZXW9===",  // Base32 doesn't use 9
       "M",  // invalid length (too short)
       "MZXW!@#$",  // special characters
-      "========",  // only padding
+      "========"  // only padding
     ]
   )
   func invalidInput(input: String) {
@@ -140,7 +140,7 @@ struct Base32Tests {
     arguments: [
       ([0x00, 0xFF, 0x80, 0x7F], nil),  // mixed binary
       ([0x00, 0x00, 0x00, 0x00, 0x00], "AAAAAAAA"),  // all zeros
-      ([0x00, 0x01, 0x02, 0x03, 0x04], nil),  // sequential bytes
+      ([0x00, 0x01, 0x02, 0x03, 0x04], nil)  // sequential bytes
     ]
   )
   func binaryDataPatterns(input: [UInt8], expectedEncoded: String?) {
@@ -162,7 +162,7 @@ struct Base32Tests {
     let secret: [UInt8] = [
       0x48, 0x65, 0x6C, 0x6C, 0x6F, 0x21, 0xDE, 0xAD,
       0xBE, 0xEF, 0x48, 0x65, 0x6C, 0x6C, 0x6F, 0x21,
-      0xDE, 0xAD, 0xBE, 0xEF,
+      0xDE, 0xAD, 0xBE, 0xEF
     ]
 
     let encoded = String(base32Encoding: secret, padding: false)

@@ -19,7 +19,7 @@ struct Base32HexTests {
       ("foo", "CPNMU==="),
       ("foob", "CPNMUOG="),
       ("fooba", "CPNMUOJ1"),
-      ("foobar", "CPNMUOJ1E8======"),
+      ("foobar", "CPNMUOJ1E8======")
     ]
   )
   func rFCVectors(input: String, expected: String) {
@@ -67,7 +67,7 @@ struct Base32HexTests {
       "CPNMU===",  // uppercase
       "cpnmu===",  // lowercase
       "CpNmU===",  // mixed case
-      "cPnMu===",  // random mixed case
+      "cPnMu==="  // random mixed case
     ]
   )
   func caseInsensitive(encoded: String) {
@@ -97,7 +97,7 @@ struct Base32HexTests {
       (Array("f".utf8), false, "CO", false),  // no padding
       (Array("f".utf8), true, "CO======", true),  // with padding
       (Array("foo".utf8), false, "CPNMU", false),  // no padding
-      (Array("foo".utf8), true, "CPNMU===", true),  // with padding
+      (Array("foo".utf8), true, "CPNMU===", true)  // with padding
     ]
   )
   func paddingVariations(
@@ -120,7 +120,7 @@ struct Base32HexTests {
       "CPNMU===\nCPNG====",  // newline
       "CPNMU===\t\tCPNG====",  // tabs
       "CPNMU=== CPNG====",  // space
-      "CPNMU=== \t CPNG====",  // mixed
+      "CPNMU=== \t CPNG===="  // mixed
     ]
   )
   func whitespaceHandling(input: String) {
@@ -137,7 +137,7 @@ struct Base32HexTests {
       "CPNMZ===",  // Base32-HEX doesn't use Z
       "C",  // invalid length (too short)
       "CPNM!@#$",  // special characters
-      "========",  // only padding
+      "========"  // only padding
     ]
   )
   func invalidInput(input: String) {
@@ -153,7 +153,7 @@ struct Base32HexTests {
       ([0x00, 0xFF, 0x80, 0x7F], nil),  // mixed binary
       ([0x00, 0x00, 0x00, 0x00, 0x00], "00000000"),  // all zeros
       ([0x00, 0x01, 0x02, 0x03, 0x04], nil),  // sequential
-      ([0xFF, 0xFF, 0xFF, 0xFF, 0xFF], nil),  // all ones
+      ([0xFF, 0xFF, 0xFF, 0xFF, 0xFF], nil)  // all ones
     ]
   )
   func binaryDataPatterns(input: [UInt8], expectedEncoded: String?) {

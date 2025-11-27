@@ -30,7 +30,7 @@ struct BinaryIntegerDecodingTests {
       UInt32(65535),
       UInt32(123_456),
       UInt32(0xDEAD_BEEF),
-      UInt32.max,
+      UInt32.max
     ]
   )
   func uInt32Base64RoundTrip(value: UInt32) {
@@ -43,7 +43,7 @@ struct BinaryIntegerDecodingTests {
   @Test(
     "UInt8 Base64 round-trip",
     arguments: [
-      UInt8(0), UInt8(1), UInt8(127), UInt8(128), UInt8(255),
+      UInt8(0), UInt8(1), UInt8(127), UInt8(128), UInt8(255)
     ]
   )
   func uInt8Base64RoundTrip(value: UInt8) {
@@ -56,7 +56,7 @@ struct BinaryIntegerDecodingTests {
   @Test(
     "UInt16 Base64 round-trip",
     arguments: [
-      UInt16(0), UInt16(255), UInt16(256), UInt16(0xABCD), UInt16.max,
+      UInt16(0), UInt16(255), UInt16(256), UInt16(0xABCD), UInt16.max
     ]
   )
   func uInt16Base64RoundTrip(value: UInt16) {
@@ -72,7 +72,7 @@ struct BinaryIntegerDecodingTests {
       UInt64(0),
       UInt64(UInt32.max),
       UInt64(0x1234_5678_9ABC_DEF0),
-      UInt64.max,
+      UInt64.max
     ]
   )
   func uInt64Base64RoundTrip(value: UInt64) {
@@ -111,7 +111,7 @@ struct BinaryIntegerDecodingTests {
   @Test(
     "UInt32 Base64URL round-trip",
     arguments: [
-      UInt32(0), UInt32(123_456), UInt32(0xDEAD_BEEF), UInt32.max,
+      UInt32(0), UInt32(123_456), UInt32(0xDEAD_BEEF), UInt32.max
     ]
   )
   func uInt32Base64URLRoundTrip(value: UInt32) {
@@ -126,7 +126,7 @@ struct BinaryIntegerDecodingTests {
   @Test(
     "UInt32 Base32 round-trip",
     arguments: [
-      UInt32(0), UInt32(123_456), UInt32.max,
+      UInt32(0), UInt32(123_456), UInt32.max
     ]
   )
   func uInt32Base32RoundTrip(value: UInt32) {
@@ -151,7 +151,7 @@ struct BinaryIntegerDecodingTests {
   @Test(
     "UInt32 Base32-HEX round-trip",
     arguments: [
-      UInt32(0), UInt32(123_456), UInt32.max,
+      UInt32(0), UInt32(123_456), UInt32.max
     ]
   )
   func uInt32Base32HexRoundTrip(value: UInt32) {
@@ -174,7 +174,7 @@ struct BinaryIntegerDecodingTests {
   @Test(
     "UInt8 hexadecimal round-trip",
     arguments: [
-      UInt8(0x00), UInt8(0x0F), UInt8(0xFF), UInt8(0xAB),
+      UInt8(0x00), UInt8(0x0F), UInt8(0xFF), UInt8(0xAB)
     ]
   )
   func uInt8HexRoundTrip(value: UInt8) {
@@ -187,7 +187,7 @@ struct BinaryIntegerDecodingTests {
   @Test(
     "UInt16 hexadecimal round-trip",
     arguments: [
-      UInt16(0x0000), UInt16(0xABCD), UInt16(0xFFFF),
+      UInt16(0x0000), UInt16(0xABCD), UInt16(0xFFFF)
     ]
   )
   func uInt16HexRoundTrip(value: UInt16) {
@@ -202,7 +202,7 @@ struct BinaryIntegerDecodingTests {
     arguments: [
       UInt64(0),
       UInt64(0x1234_5678_9ABC_DEF0),
-      UInt64.max,
+      UInt64.max
     ]
   )
   func uInt64HexRoundTrip(value: UInt64) {

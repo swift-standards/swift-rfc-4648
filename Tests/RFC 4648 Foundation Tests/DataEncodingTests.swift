@@ -142,7 +142,7 @@ struct DataEncodingTests {
       Data([0xFF]),
       Data([0x00, 0x0F, 0xFF]),
       Data([0xDE, 0xAD, 0xBE, 0xEF]),
-      Data((0...255).map { UInt8($0) }),
+      Data((0...255).map { UInt8($0) })
     ]
   )
   func dataHexRoundTrip(input: Data) {
@@ -157,7 +157,7 @@ struct DataEncodingTests {
   @Test(
     "Empty data encoding",
     arguments: [
-      "base64URL", "base32", "base32Hex", "hex",
+      "base64URL", "base32", "base32Hex", "hex"
     ]
   )
   func emptyDataEncoding(encoding: String) {
@@ -180,7 +180,7 @@ struct DataEncodingTests {
   @Test(
     "Empty string decoding",
     arguments: [
-      "base64URL", "base32", "base32Hex", "hex",
+      "base64URL", "base32", "base32Hex", "hex"
     ]
   )
   func emptyStringDecoding(encoding: String) {

@@ -19,7 +19,7 @@ struct Base64Tests {
       ("foo", "Zm9v"),
       ("foob", "Zm9vYg=="),
       ("fooba", "Zm9vYmE="),
-      ("foobar", "Zm9vYmFy"),
+      ("foobar", "Zm9vYmFy")
     ]
   )
   func rFCVectors(input: String, expected: String) {
@@ -41,7 +41,7 @@ struct Base64Tests {
       (Array("fo".utf8), false, "Zm8", nil),  // no padding - fails
       (Array("fo".utf8), true, "Zm8=", Array("fo".utf8)),  // with padding - succeeds
       (Array("foo".utf8), false, "Zm9v", Array("foo".utf8)),  // no padding needed
-      (Array("foo".utf8), true, "Zm9v", Array("foo".utf8)),  // padding doesn't hurt
+      (Array("foo".utf8), true, "Zm9v", Array("foo".utf8))  // padding doesn't hurt
     ]
   )
   func paddingVariations(
@@ -62,7 +62,7 @@ struct Base64Tests {
       "Zm9v\nYmFy",  // newline
       "Zm9v\tYmFy",  // tab
       "Zm9v YmFy",  // space
-      "Zm9v\n\t YmFy",  // mixed whitespace
+      "Zm9v\n\t YmFy"  // mixed whitespace
     ]
   )
   func whitespaceHandling(input: String) {
@@ -78,7 +78,7 @@ struct Base64Tests {
       "Zm9v!!!!",  // invalid characters
       "Zm9",  // invalid length (not multiple of 4)
       "====",  // only padding
-      "Z",  // too short
+      "Z"  // too short
     ]
   )
   func invalidInput(input: String) {
@@ -93,7 +93,7 @@ struct Base64Tests {
     arguments: [
       ([0x00, 0xFF, 0x80, 0x7F], nil),  // mixed binary data
       ([0x00, 0x00, 0x00], "AAAA"),  // all zeros
-      ([0xFF, 0xFF, 0xFF], "////"),  // all ones
+      ([0xFF, 0xFF, 0xFF], "////")  // all ones
     ]
   )
   func binaryDataPatterns(input: [UInt8], expectedEncoded: String?) {

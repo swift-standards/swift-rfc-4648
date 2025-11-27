@@ -14,7 +14,7 @@ struct Base64URLTests {
     "Base64URL basic patterns",
     arguments: [
       ([], ""),  // empty string
-      (Array("hello".utf8), nil),  // simple string - verify round-trip only
+      (Array("hello".utf8), nil)  // simple string - verify round-trip only
     ]
   )
   func basicPatterns(input: [UInt8], expectedEncoded: String?) {
@@ -65,7 +65,7 @@ struct Base64URLTests {
       (Array("f".utf8), true, "Zg==", true),  // explicit padding
       (Array("fo".utf8), false, "Zm8", false),  // no padding
       (Array("fo".utf8), true, "Zm8=", true),  // with padding
-      (Array("foo".utf8), false, "Zm9v", false),  // no padding needed
+      (Array("foo".utf8), false, "Zm9v", false)  // no padding needed
     ]
   )
   func paddingVariations(
@@ -97,7 +97,7 @@ struct Base64URLTests {
       "Zg+A",  // '+' not valid in Base64URL
       "Zg/A",  // '/' not valid in Base64URL
       "Zm9v!!!!",  // special characters
-      "Z",  // too short
+      "Z"  // too short
     ]
   )
   func invalidInput(input: String) {

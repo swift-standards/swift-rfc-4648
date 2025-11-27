@@ -60,7 +60,7 @@ extension RFC_4648 {
           result.append(contentsOf: [
             RFC_4648.padding, RFC_4648.padding,
             RFC_4648.padding, RFC_4648.padding,
-            RFC_4648.padding, RFC_4648.padding,
+            RFC_4648.padding, RFC_4648.padding
           ])
           break
         } else {
@@ -72,7 +72,7 @@ extension RFC_4648 {
         } else if padding {
           result.append(contentsOf: [
             RFC_4648.padding, RFC_4648.padding,
-            RFC_4648.padding, RFC_4648.padding,
+            RFC_4648.padding, RFC_4648.padding
           ])
           break
         } else {
@@ -85,7 +85,7 @@ extension RFC_4648 {
         } else if padding {
           result.append(contentsOf: [
             RFC_4648.padding, RFC_4648.padding,
-            RFC_4648.padding,
+            RFC_4648.padding
           ])
           break
         } else {

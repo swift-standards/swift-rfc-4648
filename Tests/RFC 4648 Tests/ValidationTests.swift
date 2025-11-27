@@ -21,7 +21,7 @@ struct ValidationTests {
       "Zm9vYg==",
       "Zm9vYmE=",
       "Zm9vYmFy",
-      "VGhlIHF1aWNrIGJyb3duIGZveCBqdW1wcyBvdmVyIHRoZSBsYXp5IGRvZw==",
+      "VGhlIHF1aWNrIGJyb3duIGZveCBqdW1wcyBvdmVyIHRoZSBsYXp5IGRvZw=="
     ]
   )
   func validBase64(input: String) {
@@ -35,7 +35,7 @@ struct ValidationTests {
       "Zm9",  // Invalid length
       "====",  // Only padding
       "Z!9v",  // Invalid character
-      "Zm9v===",  // Too much padding
+      "Zm9v==="  // Too much padding
     ]
   )
   func invalidBase64(input: String) {
@@ -62,7 +62,7 @@ struct ValidationTests {
       "Zm9vYg",
       "Zm9vYmE",
       "Zm9vYmFy",
-      "A-B_",  // Base64URL uses - and _ (length 4 is valid)
+      "A-B_"  // Base64URL uses - and _ (length 4 is valid)
     ]
   )
   func validBase64URL(input: String) {
@@ -73,7 +73,7 @@ struct ValidationTests {
     "Invalid Base64URL strings",
     arguments: [
       "!@#$",
-      "A+B/C",  // Base64URL doesn't use + and /
+      "A+B/C"  // Base64URL doesn't use + and /
     ]
   )
   func invalidBase64URL(input: String) {
@@ -88,7 +88,7 @@ struct ValidationTests {
       "",
       "MZXW6===",
       "MZXW6YTBOI======",
-      "JBSWY3DPEBLW64TMMQ======",
+      "JBSWY3DPEBLW64TMMQ======"
     ]
   )
   func validBase32(input: String) {
@@ -107,7 +107,7 @@ struct ValidationTests {
     arguments: [
       "189",  // Base32 doesn't use 0, 1, 8, 9
       "ABC!@#",  // Invalid characters
-      "====",  // Only padding
+      "===="  // Only padding
     ]
   )
   func invalidBase32(input: String) {
@@ -122,7 +122,7 @@ struct ValidationTests {
       "",
       "CPNMU===",
       "CPNMUOJ1",
-      "91IMOR3F41BMUSJCCG======",
+      "91IMOR3F41BMUSJCCG======"
     ]
   )
   func validBase32Hex(input: String) {
@@ -141,7 +141,7 @@ struct ValidationTests {
     arguments: [
       "XYZ",  // Base32-HEX doesn't use W-Z
       "ABC!@#",  // Invalid characters
-      "====",  // Only padding
+      "===="  // Only padding
     ]
   )
   func invalidBase32Hex(input: String) {
@@ -163,7 +163,7 @@ struct ValidationTests {
       "0xDEADBEEF",
       "0XDEADBEEF",
       "0123456789abcdef",
-      "0123456789ABCDEF",
+      "0123456789ABCDEF"
     ]
   )
   func validHex(input: String) {
@@ -176,7 +176,7 @@ struct ValidationTests {
       "ghijk",  // Invalid characters
       "xyz",  // Invalid characters
       "fff",  // Odd length
-      "!@#$",  // Invalid characters
+      "!@#$"  // Invalid characters
     ]
   )
   func invalidHex(input: String) {
@@ -210,7 +210,7 @@ struct ValidationTests {
       "Zm9vYmFy",  // valid
       "!@#$",  // invalid
       "Zm9",  // invalid length
-      "",  // empty
+      ""  // empty
     ]
 
     for test in testCases {
@@ -229,7 +229,7 @@ struct ValidationTests {
     let testCases = [
       "MZXW6===",  // valid
       "189",  // invalid
-      "",  // empty
+      ""  // empty
     ]
 
     for test in testCases {
@@ -250,7 +250,7 @@ struct ValidationTests {
       "0xdeadbeef",  // valid with prefix
       "ghijk",  // invalid
       "fff",  // odd length
-      "",  // empty
+      ""  // empty
     ]
 
     for test in testCases {
