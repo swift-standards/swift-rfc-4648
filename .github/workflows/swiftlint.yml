@@ -21,7 +21,7 @@ jobs:
         uses: actions/cache/restore@v4
         with:
           path: /usr/local/bin/swiftlint
-          key: ${{ runner.os }}-swiftlint-0.62.2
+          key: ${{ runner.os }}-swiftlint-0.62.2-swift62
 
       - name: Install swiftlint
         if: steps.cache-swiftlint-restore.outputs.cache-hit != 'true'
@@ -41,4 +41,4 @@ jobs:
         if: always() && steps.cache-swiftlint-restore.outputs.cache-hit != 'true'
         with:
           path: /usr/local/bin/swiftlint
-          key: ${{ runner.os }}-swiftlint-0.62.2
+          key: ${{ runner.os }}-swiftlint-0.62.2-swift62
