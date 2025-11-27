@@ -16,10 +16,13 @@ concurrency:
 jobs:
   # Primary development workflow: Latest Swift on macOS with debug build
   macos-latest:
-    name: macOS (Swift 6.0, debug)
-    runs-on: macos-latest
+    name: macOS (Swift 6.2, debug)
+    runs-on: macos-26
     steps:
       - uses: actions/checkout@v5
+
+      - name: Select Xcode 26.0
+        run: sudo xcode-select -s /Applications/Xcode_26.0.app
 
       - name: Print Swift version
         run: swift --version
@@ -28,9 +31,9 @@ jobs:
         uses: actions/cache@v4
         with:
           path: .build
-          key: macos-swift60-spm-${{ hashFiles('Package.swift', 'Package@*.swift') }}
+          key: macos-swift62-spm-${{ hashFiles('Package.swift', 'Package@*.swift') }}
           restore-keys: |
-            macos-swift60-spm-
+            macos-swift62-spm-
 
       # Note: swift test builds automatically, no separate build step needed
       - name: Test
@@ -56,9 +59,9 @@ jobs:
 
   # Production validation: Latest Swift on Linux with release build
   linux-latest:
-    name: Ubuntu (Swift 6.0, release)
+    name: Ubuntu (Swift 6.2, release)
     runs-on: ubuntu-latest
-    container: swift:6.0
+    container: swift:6.2
     steps:
       - uses: actions/checkout@v5
 
@@ -66,19 +69,19 @@ jobs:
         uses: actions/cache@v4
         with:
           path: .build
-          key: linux-swift60-spm-${{ hashFiles('Package.swift', 'Package@*.swift') }}
-          restore-keys: linux-swift60-spm-
+          key: linux-swift62-spm-${{ hashFiles('Package.swift', 'Package@*.swift') }}
+          restore-keys: linux-swift62-spm-
 
       # Note: swift test builds automatically in release mode
       - name: Test (release)
         run: swift test -c release
 
-  # Compatibility check: Minimum supported Swift version (6.0)
-  # Update to swift:6.1 when available
+  # Compatibility check: Minimum supported Swift version (6.2)
+  # Update to swift:6.3 when available
   linux-compat:
-    name: Ubuntu (Swift 6.0, compatibility)
+    name: Ubuntu (Swift 6.2, compatibility)
     runs-on: ubuntu-latest
-    container: swift:6.0
+    container: swift:6.2
     steps:
       - uses: actions/checkout@v5
 
@@ -86,9 +89,9 @@ jobs:
         uses: actions/cache@v4
         with:
           path: .build
-          key: linux-swift60-compat-spm-${{ hashFiles('Package.swift', 'Package@*.swift') }}
-          restore-keys: linux-swift60-compat-spm-
+          key: linux-swift62-compat-spm-${{ hashFiles('Package.swift', 'Package@*.swift') }}
+          restore-keys: linux-swift62-compat-spm-
 
       # Note: swift test builds automatically
-      - name: Test (Swift 6.0)
+      - name: Test (Swift 6.2)
         run: swift test -c release
