@@ -106,44 +106,7 @@ extension RFC_4648.Base64.URL {
         into buffer: inout Buffer,
         padding: Bool = false
     ) where Bytes.Element == UInt8, Buffer.Element == UInt8 {
-        guard !bytes.isEmpty else { return }
-
-        let table = encodingTable.encode
-        var iterator = bytes.makeIterator()
-
-        while let b1 = iterator.next() {
-            let b2 = iterator.next()
-            let b3 = iterator.next()
-
-            // First character: high 6 bits of b1
-            buffer.append(table[Int((b1 >> 2) & 0x3F)])
-
-            // Second character: low 2 bits of b1 + high 4 bits of b2
-            let c2 = ((b1 << 4) | ((b2 ?? 0) >> 4)) & 0x3F
-            buffer.append(table[Int(c2)])
-
-            guard let b2 = b2 else {
-                if padding {
-                    buffer.append(RFC_4648.padding)
-                    buffer.append(RFC_4648.padding)
-                }
-                break
-            }
-
-            // Third character: low 4 bits of b2 + high 2 bits of b3
-            let c3 = ((b2 << 2) | ((b3 ?? 0) >> 6)) & 0x3F
-            buffer.append(table[Int(c3)])
-
-            guard let b3 = b3 else {
-                if padding {
-                    buffer.append(RFC_4648.padding)
-                }
-                break
-            }
-
-            // Fourth character: low 6 bits of b3
-            buffer.append(table[Int(b3 & 0x3F)])
-        }
+        RFC_4648.encodeBase64(bytes, into: &buffer, table: encodingTable.encode, padding: padding)
     }
 
     /// Encodes bytes to Base64URL, returning a new array
@@ -207,53 +170,7 @@ extension RFC_4648.Base64.URL {
         _ bytes: Bytes,
         into buffer: inout Buffer
     ) -> Bool where Bytes.Element == UInt8, Buffer.Element == UInt8 {
-        guard !bytes.isEmpty else { return true }
-
-        let decodeTable = encodingTable.decode
-        var iterator = bytes.makeIterator()
-
-        // Collect up to 4 sextets at a time
-        var values = [UInt8]()
-        values.reserveCapacity(4)
-        var hasDecodedAny = false
-
-        while true {
-            values.removeAll(keepingCapacity: true)
-            var hitPadding = false
-
-            // Collect sextets for this group
-            while values.count < 4 {
-                guard let byte = iterator.next() else { break }
-                if byte == RFC_4648.padding { hitPadding = true; break }
-                if byte.ascii.isWhitespace { continue }
-                let value = decodeTable[Int(byte)]
-                guard value != 255 else { return false }
-                values.append(value)
-            }
-
-            // All-padding without data is invalid
-            if values.isEmpty && hitPadding && !hasDecodedAny { return false }
-            if values.isEmpty { break }
-            guard values.count >= 2 else { return false }
-            hasDecodedAny = true
-
-            // First byte: 6 bits from v1 + high 2 bits from v2
-            buffer.append((values[0] << 2) | (values[1] >> 4))
-
-            if values.count >= 3 {
-                // Second byte: low 4 bits from v2 + high 4 bits from v3
-                buffer.append((values[1] << 4) | (values[2] >> 2))
-
-                if values.count >= 4 {
-                    // Third byte: low 2 bits from v3 + 6 bits from v4
-                    buffer.append((values[2] << 6) | values[3])
-                }
-            }
-
-            if values.count < 4 { break }
-        }
-
-        return true
+        RFC_4648.decodeBase64(bytes, into: &buffer, decodeTable: encodingTable.decode, requirePadding: false)
     }
 
     /// Decodes Base64URL encoded bytes to a new array
@@ -313,28 +230,7 @@ extension RFC_4648.Base64.URL {
         _ bytes: Bytes,
         as type: T.Type = T.self
     ) -> T? where Bytes.Element == UInt8 {
-        guard !bytes.isEmpty else { return 0 }
-
-        let decodeTable = encodingTable.decode
-        var iterator = bytes.makeIterator()
-        var result: T = 0
-        var bitCount = 0
-        let maxBits = T.bitWidth
-
-        while let byte = iterator.next() {
-            if byte == RFC_4648.padding { break }
-            guard !byte.ascii.isWhitespace else { continue }
-
-            let value = decodeTable[Int(byte)]
-            guard value != 255 else { return nil }
-
-            bitCount += 6
-            guard bitCount <= maxBits else { return nil } // overflow
-
-            result = (result << 6) | T(value)
-        }
-
-        return result
+        RFC_4648.decodeBase64ToInteger(bytes, decodeTable: encodingTable.decode)
     }
 }
 

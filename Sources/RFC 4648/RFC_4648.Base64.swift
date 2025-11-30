@@ -75,44 +75,7 @@ extension RFC_4648.Base64 {
         into buffer: inout Buffer,
         padding: Bool = true
     ) where Bytes.Element == UInt8, Buffer.Element == UInt8 {
-        guard !bytes.isEmpty else { return }
-
-        let table = encodingTable.encode
-        var iterator = bytes.makeIterator()
-
-        while let b1 = iterator.next() {
-            let b2 = iterator.next()
-            let b3 = iterator.next()
-
-            // First character: high 6 bits of b1
-            buffer.append(table[Int((b1 >> 2) & 0x3F)])
-
-            // Second character: low 2 bits of b1 + high 4 bits of b2
-            let c2 = ((b1 << 4) | ((b2 ?? 0) >> 4)) & 0x3F
-            buffer.append(table[Int(c2)])
-
-            guard let b2 = b2 else {
-                if padding {
-                    buffer.append(RFC_4648.padding)
-                    buffer.append(RFC_4648.padding)
-                }
-                break
-            }
-
-            // Third character: low 4 bits of b2 + high 2 bits of b3
-            let c3 = ((b2 << 2) | ((b3 ?? 0) >> 6)) & 0x3F
-            buffer.append(table[Int(c3)])
-
-            guard let b3 = b3 else {
-                if padding {
-                    buffer.append(RFC_4648.padding)
-                }
-                break
-            }
-
-            // Fourth character: low 6 bits of b3
-            buffer.append(table[Int(b3 & 0x3F)])
-        }
+        RFC_4648.encodeBase64(bytes, into: &buffer, table: encodingTable.encode, padding: padding)
     }
 
     /// Encodes bytes to Base64, returning a new array
@@ -176,61 +139,7 @@ extension RFC_4648.Base64 {
         _ bytes: Bytes,
         into buffer: inout Buffer
     ) -> Bool where Bytes.Element == UInt8, Buffer.Element == UInt8 {
-        guard !bytes.isEmpty else { return true }
-
-        let decodeTable = encodingTable.decode
-        var iterator = bytes.makeIterator()
-
-        // Collect exactly 4 characters at a time (standard Base64 requires groups of 4)
-        var values = [UInt8]()
-        values.reserveCapacity(4)
-        var hasDecodedAny = false
-
-        while true {
-            values.removeAll(keepingCapacity: true)
-            var paddingCount = 0
-
-            // Collect 4 characters for this group
-            while values.count + paddingCount < 4 {
-                guard let byte = iterator.next() else { break }
-                if byte == RFC_4648.padding {
-                    paddingCount += 1
-                    continue
-                }
-                if byte.ascii.isWhitespace { continue }
-                // Padding in the middle is invalid
-                if paddingCount > 0 { return false }
-                let value = decodeTable[Int(byte)]
-                guard value != 255 else { return false }
-                values.append(value)
-            }
-
-            // Must have exactly 4 characters per group (including padding)
-            let totalChars = values.count + paddingCount
-            if totalChars == 0 { break }
-            // Incomplete group is invalid in standard Base64
-            if totalChars != 4 { return false }
-            // All-padding is invalid
-            if values.isEmpty { return false }
-            // Need at least 2 data characters
-            guard values.count >= 2 else { return false }
-            hasDecodedAny = true
-
-            // First byte: 6 bits from v1 + high 2 bits from v2
-            buffer.append((values[0] << 2) | (values[1] >> 4))
-
-            if values.count >= 3 {
-                // Second byte: low 4 bits from v2 + high 4 bits from v3
-                buffer.append((values[1] << 4) | (values[2] >> 2))
-
-                if values.count >= 4 {
-                    // Third byte: low 2 bits from v3 + 6 bits from v4
-                    buffer.append((values[2] << 6) | values[3])
-                }
-            }
-        }
-
-        return hasDecodedAny || true // Empty input is valid
+        RFC_4648.decodeBase64(bytes, into: &buffer, decodeTable: encodingTable.decode, requirePadding: true)
     }
 
     /// Decodes Base64 encoded bytes to a new array
@@ -290,28 +199,7 @@ extension RFC_4648.Base64 {
         _ bytes: Bytes,
         as type: T.Type = T.self
     ) -> T? where Bytes.Element == UInt8 {
-        guard !bytes.isEmpty else { return 0 }
-
-        let decodeTable = encodingTable.decode
-        var iterator = bytes.makeIterator()
-        var result: T = 0
-        var bitCount = 0
-        let maxBits = T.bitWidth
-
-        while let byte = iterator.next() {
-            if byte == RFC_4648.padding { break }
-            guard !byte.ascii.isWhitespace else { continue }
-
-            let value = decodeTable[Int(byte)]
-            guard value != 255 else { return nil }
-
-            bitCount += 6
-            guard bitCount <= maxBits else { return nil } // overflow
-
-            result = (result << 6) | T(value)
-        }
-
-        return result
+        RFC_4648.decodeBase64ToInteger(bytes, decodeTable: encodingTable.decode)
     }
 }
 

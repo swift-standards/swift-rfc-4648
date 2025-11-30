@@ -115,76 +115,7 @@ extension RFC_4648.Base32 {
         into buffer: inout Buffer,
         padding: Bool = true
     ) where Bytes.Element == UInt8, Buffer.Element == UInt8 {
-        guard !bytes.isEmpty else { return }
-
-        let table = encodingTable.encode
-        var iterator = bytes.makeIterator()
-
-        while let b1 = iterator.next() {
-            let b2 = iterator.next()
-            let b3 = iterator.next()
-            let b4 = iterator.next()
-            let b5 = iterator.next()
-
-            // First character: high 5 bits of b1
-            buffer.append(table[Int((b1 >> 3) & 0x1F)])
-
-            // Second character: low 2 bits of b1 + high 3 bits of b2
-            let c2 = ((b1 << 2) | ((b2 ?? 0) >> 6)) & 0x1F
-            buffer.append(table[Int(c2)])
-
-            guard let b2 = b2 else {
-                if padding {
-                    buffer.append(contentsOf: [RFC_4648.padding, RFC_4648.padding,
-                                               RFC_4648.padding, RFC_4648.padding,
-                                               RFC_4648.padding, RFC_4648.padding])
-                }
-                break
-            }
-
-            // Third character: bits 5-1 of b2
-            buffer.append(table[Int((b2 >> 1) & 0x1F)])
-
-            // Fourth character: low 1 bit of b2 + high 4 bits of b3
-            let c4 = ((b2 << 4) | ((b3 ?? 0) >> 4)) & 0x1F
-            buffer.append(table[Int(c4)])
-
-            guard let b3 = b3 else {
-                if padding {
-                    buffer.append(contentsOf: [RFC_4648.padding, RFC_4648.padding,
-                                               RFC_4648.padding, RFC_4648.padding])
-                }
-                break
-            }
-
-            // Fifth character: low 4 bits of b3 + high 1 bit of b4
-            let c5 = ((b3 << 1) | ((b4 ?? 0) >> 7)) & 0x1F
-            buffer.append(table[Int(c5)])
-
-            guard let b4 = b4 else {
-                if padding {
-                    buffer.append(contentsOf: [RFC_4648.padding, RFC_4648.padding, RFC_4648.padding])
-                }
-                break
-            }
-
-            // Sixth character: bits 6-2 of b4
-            buffer.append(table[Int((b4 >> 2) & 0x1F)])
-
-            // Seventh character: low 2 bits of b4 + high 3 bits of b5
-            let c7 = ((b4 << 3) | ((b5 ?? 0) >> 5)) & 0x1F
-            buffer.append(table[Int(c7)])
-
-            guard let b5 = b5 else {
-                if padding {
-                    buffer.append(RFC_4648.padding)
-                }
-                break
-            }
-
-            // Eighth character: low 5 bits of b5
-            buffer.append(table[Int(b5 & 0x1F)])
-        }
+        RFC_4648.encodeBase32(bytes, into: &buffer, table: encodingTable.encode, padding: padding)
     }
 
     /// Encodes bytes to Base32, returning a new array
@@ -246,64 +177,7 @@ extension RFC_4648.Base32 {
         _ bytes: Bytes,
         into buffer: inout Buffer
     ) -> Bool where Bytes.Element == UInt8, Buffer.Element == UInt8 {
-        guard !bytes.isEmpty else { return true }
-
-        let decodeTable = encodingTable.decode
-        var iterator = bytes.makeIterator()
-
-        // Collect up to 8 quintets at a time
-        var values = [UInt8]()
-        values.reserveCapacity(8)
-
-        var hasDecodedAny = false
-
-        while true {
-            values.removeAll(keepingCapacity: true)
-            var hitPadding = false
-
-            // Collect quintets for this group
-            while values.count < 8 {
-                guard let byte = iterator.next() else { break }
-                if byte == RFC_4648.padding { hitPadding = true; break }
-                if byte.ascii.isWhitespace { continue }
-                let value = decodeTable[Int(byte)]
-                guard value != 255 else { return false }
-                values.append(value)
-            }
-
-            // All-padding without data is invalid
-            if values.isEmpty && hitPadding && !hasDecodedAny { return false }
-            if values.isEmpty { break }
-            guard values.count >= 2 else { return false }
-            hasDecodedAny = true
-
-            // First byte: 5 bits from v1 + high 3 bits from v2
-            buffer.append((values[0] << 3) | (values[1] >> 2))
-
-            if values.count >= 4 {
-                // Second byte
-                buffer.append((values[1] << 6) | (values[2] << 1) | (values[3] >> 4))
-            }
-
-            if values.count >= 5 {
-                // Third byte
-                buffer.append((values[3] << 4) | (values[4] >> 1))
-            }
-
-            if values.count >= 7 {
-                // Fourth byte
-                buffer.append((values[4] << 7) | (values[5] << 2) | (values[6] >> 3))
-            }
-
-            if values.count >= 8 {
-                // Fifth byte
-                buffer.append((values[6] << 5) | values[7])
-            }
-
-            if values.count < 8 { break }
-        }
-
-        return true
+        RFC_4648.decodeBase32(bytes, into: &buffer, decodeTable: encodingTable.decode)
     }
 
     /// Decodes Base32 encoded bytes to a new array
@@ -363,28 +237,7 @@ extension RFC_4648.Base32 {
         _ bytes: Bytes,
         as type: T.Type = T.self
     ) -> T? where Bytes.Element == UInt8 {
-        guard !bytes.isEmpty else { return 0 }
-
-        let decodeTable = encodingTable.decode
-        var iterator = bytes.makeIterator()
-        var result: T = 0
-        var bitCount = 0
-        let maxBits = T.bitWidth
-
-        while let byte = iterator.next() {
-            if byte == RFC_4648.padding { break }
-            guard !byte.ascii.isWhitespace else { continue }
-
-            let value = decodeTable[Int(byte)]
-            guard value != 255 else { return nil }
-
-            bitCount += 5
-            guard bitCount <= maxBits else { return nil } // overflow
-
-            result = (result << 5) | T(value)
-        }
-
-        return result
+        RFC_4648.decodeBase32ToInteger(bytes, decodeTable: encodingTable.decode)
     }
 }
 

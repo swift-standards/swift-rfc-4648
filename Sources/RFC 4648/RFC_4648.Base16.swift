@@ -41,40 +41,39 @@ extension RFC_4648 {
 // MARK: - Encoding Tables
 
 extension RFC_4648.Base16 {
+    /// Shared decode table for hex (case-insensitive)
+    private static let hexDecodeTable: [UInt8] = {
+        var table = [UInt8](repeating: 255, count: 256)
+
+        // 0-9
+        for char in UInt8(ascii: "0")...UInt8(ascii: "9") {
+            table[Int(char)] = char - UInt8(ascii: "0")
+        }
+
+        // a-f
+        for char in UInt8(ascii: "a")...UInt8(ascii: "f") {
+            table[Int(char)] = 10 + (char - UInt8(ascii: "a"))
+        }
+
+        // A-F
+        for char in UInt8(ascii: "A")...UInt8(ascii: "F") {
+            table[Int(char)] = 10 + (char - UInt8(ascii: "A"))
+        }
+
+        return table
+    }()
+
     /// Base16 encoding table - lowercase (RFC 4648 Section 8)
-    public static var encodingTable: RFC_4648.EncodingTable {
-        RFC_4648.EncodingTable(
-            encode: Array("0123456789abcdef".utf8),
-            decode: {
-                var table = [UInt8](repeating: 255, count: 256)
-
-                // 0-9
-                for char in UInt8(ascii: "0")...UInt8(ascii: "9") {
-                    table[Int(char)] = char - UInt8(ascii: "0")
-                }
-
-                // a-f
-                for char in UInt8(ascii: "a")...UInt8(ascii: "f") {
-                    table[Int(char)] = 10 + (char - UInt8(ascii: "a"))
-                }
-
-                // A-F
-                for char in UInt8(ascii: "A")...UInt8(ascii: "F") {
-                    table[Int(char)] = 10 + (char - UInt8(ascii: "A"))
-                }
-
-                return table
-            }()
-        )
-    }
+    public static let encodingTable = RFC_4648.EncodingTable(
+        encode: Array("0123456789abcdef".utf8),
+        decode: hexDecodeTable
+    )
 
     /// Base16 encoding table - uppercase (RFC 4648 Section 8)
-    public static var encodingTableUppercase: RFC_4648.EncodingTable {
-        RFC_4648.EncodingTable(
-            encode: Array("0123456789ABCDEF".utf8),
-            decode: encodingTable.decode  // Share the same decode table
-        )
-    }
+    public static let encodingTableUppercase = RFC_4648.EncodingTable(
+        encode: Array("0123456789ABCDEF".utf8),
+        decode: hexDecodeTable
+    )
 }
 
 // MARK: - Encoder (for String.hex(...) syntax)
