@@ -24,7 +24,7 @@ struct Base32HexTests {
     )
     func rFCVectors(input: String, expected: String) {
         let bytes = Array(input.utf8)
-        let encoded = String(base32HexEncoding: bytes)
+        let encoded = String.base32.hex(bytes)
         #expect(encoded == expected, "Encoding '\(input)' should produce '\(expected)'")
 
         let decoded = [UInt8](base32HexEncoded: encoded)
@@ -36,7 +36,7 @@ struct Base32HexTests {
     @Test("Base32-HEX uses correct alphabet (0-9, A-V)")
     func alphabetRange() {
         let input: [UInt8] = Array("The quick brown fox jumps over the lazy dog".utf8)
-        let encoded = String(base32HexEncoding: input, padding: false)
+        let encoded = String.base32.hex(input, padding: false)
 
         for char in encoded {
             let isValid = (char >= "0" && char <= "9") || (char >= "A" && char <= "V")
@@ -48,8 +48,8 @@ struct Base32HexTests {
     func differentFromBase32() {
         let input: [UInt8] = Array("foo".utf8)
 
-        let base32 = String(base32Encoding: input, padding: false)
-        let base32hex = String(base32HexEncoding: input, padding: false)
+        let base32 = String.base32(input, padding: false)
+        let base32hex = String.base32.hex(input, padding: false)
 
         // Different encodings
         #expect(base32 != base32hex)
@@ -79,7 +79,7 @@ struct Base32HexTests {
     @Test("Base32-HEX encoding produces uppercase")
     func encodingProducesUppercase() {
         let input: [UInt8] = Array("hello".utf8)
-        let encoded = String(base32HexEncoding: input)
+        let encoded = String.base32.hex(input)
 
         // All letters should be uppercase (A-V)
         for char in encoded {
@@ -103,7 +103,7 @@ struct Base32HexTests {
     func paddingVariations(
         input: [UInt8], padding: Bool, expectedEncoded: String, shouldHavePadding: Bool
     ) {
-        let encoded = String(base32HexEncoding: input, padding: padding)
+        let encoded = String.base32.hex(input, padding: padding)
         #expect(encoded == expectedEncoded)
         #expect(encoded.contains("=") == shouldHavePadding)
 
@@ -157,7 +157,7 @@ struct Base32HexTests {
         ]
     )
     func binaryDataPatterns(input: [UInt8], expectedEncoded: String?) {
-        let encoded = String(base32HexEncoding: input)
+        let encoded = String.base32.hex(input)
 
         if let expected = expectedEncoded {
             #expect(encoded == expected)
@@ -173,7 +173,7 @@ struct Base32HexTests {
     func roundTripVariousSizes() {
         for size in [1, 2, 3, 4, 5, 10, 20, 50, 100] {
             let input: [UInt8] = (0..<size).map { UInt8($0 % 256) }
-            let encoded = String(base32HexEncoding: input)
+            let encoded = String.base32.hex(input)
             let decoded = [UInt8](base32HexEncoded: encoded)
             #expect(decoded == input)
         }
@@ -183,7 +183,7 @@ struct Base32HexTests {
     func testLongString() {
         let longString = String(repeating: "Hello, World! ", count: 100)
         let input = Array(longString.utf8)
-        let encoded = String(base32HexEncoding: input)
+        let encoded = String.base32.hex(input)
         let decoded = [UInt8](base32HexEncoded: encoded)
         #expect(decoded == input)
     }
@@ -197,9 +197,9 @@ struct Base32HexTests {
         let input2: [UInt8] = [0x01]
         let input3: [UInt8] = [0xFF]
 
-        let encoded1 = String(base32HexEncoding: input1, padding: false)
-        let encoded2 = String(base32HexEncoding: input2, padding: false)
-        let encoded3 = String(base32HexEncoding: input3, padding: false)
+        let encoded1 = String.base32.hex(input1, padding: false)
+        let encoded2 = String.base32.hex(input2, padding: false)
+        let encoded3 = String.base32.hex(input3, padding: false)
 
         // Lexicographic order should be preserved
         #expect(encoded1 < encoded2)

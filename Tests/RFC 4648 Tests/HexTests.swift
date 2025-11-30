@@ -24,7 +24,7 @@ struct HexTests {
     )
     func rFCVectors(input: String, expected: String) {
         let bytes = Array(input.utf8)
-        let encoded = String(hexEncoding: bytes)
+        let encoded = String.hex(bytes)
         #expect(encoded == expected, "Encoding '\(input)' should produce '\(expected)'")
 
         let decoded = [UInt8](hexEncoded: encoded)
@@ -36,14 +36,14 @@ struct HexTests {
     @Test("Hex encoding lowercase by default")
     func lowercaseDefault() {
         let input: [UInt8] = [0xFF, 0xAB, 0xCD]
-        let encoded = String(hexEncoding: input)
+        let encoded = String.hex(input)
         #expect(encoded == "ffabcd")
     }
 
     @Test("Hex encoding uppercase when requested")
     func uppercaseOption() {
         let input: [UInt8] = [0xFF, 0xAB, 0xCD]
-        let encoded = String(hexEncoding: input, uppercase: true)
+        let encoded = String.hex(input, uppercase: true)
         #expect(encoded == "FFABCD")
     }
 
@@ -119,7 +119,7 @@ struct HexTests {
     func allByteValues() {
         for byte in 0...255 {
             let input: [UInt8] = [UInt8(byte)]
-            let encoded = String(hexEncoding: input)
+            let encoded = String.hex(input)
             let decoded = [UInt8](hexEncoded: encoded)
             #expect(decoded == input)
         }
@@ -128,7 +128,7 @@ struct HexTests {
     @Test("Hex encoding all zeros")
     func allZeros() {
         let input: [UInt8] = [0x00, 0x00, 0x00]
-        let encoded = String(hexEncoding: input)
+        let encoded = String.hex(input)
         #expect(encoded == "000000")
 
         let decoded = [UInt8](hexEncoded: encoded)
@@ -138,7 +138,7 @@ struct HexTests {
     @Test("Hex encoding all ones")
     func allOnes() {
         let input: [UInt8] = [0xFF, 0xFF, 0xFF]
-        let encoded = String(hexEncoding: input)
+        let encoded = String.hex(input)
         #expect(encoded == "ffffff")
 
         let decoded = [UInt8](hexEncoded: encoded)
@@ -148,7 +148,7 @@ struct HexTests {
     @Test("Hex encoding sequential bytes")
     func sequentialBytes() {
         let input: [UInt8] = [0x00, 0x01, 0x02, 0x03, 0x04, 0x05]
-        let encoded = String(hexEncoding: input)
+        let encoded = String.hex(input)
         #expect(encoded == "000102030405")
 
         let decoded = [UInt8](hexEncoded: encoded)
@@ -167,7 +167,7 @@ struct HexTests {
             0xA4, 0x95, 0x99, 0x1B, 0x78, 0x52, 0xB8, 0x55,
         ]
 
-        let encoded = String(hexEncoding: hash)
+        let encoded = String.hex(hash)
         #expect(encoded.count == 64)  // 32 bytes * 2 chars per byte
 
         let decoded = [UInt8](hexEncoded: encoded)
@@ -182,7 +182,7 @@ struct HexTests {
             0x12, 0x34, 0x56, 0x78, 0x9A, 0xBC, 0xDE, 0xF0,
         ]
 
-        let encoded = String(hexEncoding: uuid)
+        let encoded = String.hex(uuid)
         let decoded = [UInt8](hexEncoded: encoded)
         #expect(decoded == uuid)
     }
@@ -191,7 +191,7 @@ struct HexTests {
     func colorValues() {
         // RGB color: #FF5733
         let color: [UInt8] = [0xFF, 0x57, 0x33]
-        let encoded = String(hexEncoding: color, uppercase: true)
+        let encoded = String.hex(color, uppercase: true)
         #expect(encoded == "FF5733")
 
         let decoded = [UInt8](hexEncoded: "#FF5733")
@@ -207,7 +207,7 @@ struct HexTests {
     func roundTripVariousSizes() {
         for size in [1, 2, 10, 100, 1000] {
             let input: [UInt8] = (0..<size).map { UInt8($0 % 256) }
-            let encoded = String(hexEncoding: input)
+            let encoded = String.hex(input)
             let decoded = [UInt8](hexEncoded: encoded)
             #expect(decoded == input)
         }
@@ -217,7 +217,7 @@ struct HexTests {
     func testLongString() {
         let longString = String(repeating: "Hello, World! ", count: 100)
         let input = Array(longString.utf8)
-        let encoded = String(hexEncoding: input)
+        let encoded = String.hex(input)
         let decoded = [UInt8](hexEncoded: encoded)
         #expect(decoded == input)
     }
@@ -245,8 +245,8 @@ struct HexTests {
     func consistentOutput() {
         let input: [UInt8] = [0xAB, 0xCD, 0xEF]
 
-        let encoded1 = String(hexEncoding: input)
-        let encoded2 = String(hexEncoding: input)
+        let encoded1 = String.hex(input)
+        let encoded2 = String.hex(input)
 
         #expect(encoded1 == encoded2)
     }

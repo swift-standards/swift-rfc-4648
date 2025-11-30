@@ -2,6 +2,10 @@
 // swift-rfc-4648
 //
 // FixedWidthInteger decoding extensions for RFC 4648 encodings
+//
+// These initializers decode encoded strings directly to integers.
+// They delegate to RFC_4648 primitives and use the Standards library
+// for byte-to-integer conversion.
 
 import Standards
 
@@ -14,6 +18,8 @@ extension FixedWidthInteger {
     /// Returns nil if the string is invalid or if the decoded byte count doesn't match
     /// the integer's byte width.
     ///
+    /// Delegates to `RFC_4648.Base64.decode(_:)`.
+    ///
     /// - Parameter base64Encoded: Base64 encoded string
     ///
     /// ## Examples
@@ -23,8 +29,9 @@ extension FixedWidthInteger {
     /// let invalid = UInt32(base64Encoded: "invalid")  // nil
     /// let wrongSize = UInt8(base64Encoded: "AAHiQA==")  // nil (4 bytes != 1 byte)
     /// ```
-    public init?(base64Encoded string: String) {
-        guard let bytes = [UInt8](base64Encoded: string) else { return nil }
+    @inlinable
+    public init?(base64Encoded string: some StringProtocol) {
+        guard let bytes = RFC_4648.Base64.decode(string) else { return nil }
         self.init(bytes: bytes, endianness: .big)
     }
 
@@ -34,6 +41,8 @@ extension FixedWidthInteger {
     /// Returns nil if the string is invalid or if the decoded byte count doesn't match
     /// the integer's byte width.
     ///
+    /// Delegates to `RFC_4648.Base64.URL.decode(_:)`.
+    ///
     /// - Parameter base64URLEncoded: Base64URL encoded string
     ///
     /// ## Examples
@@ -41,8 +50,9 @@ extension FixedWidthInteger {
     /// ```swift
     /// let value = UInt32(base64URLEncoded: "AAHiQA")  // 123456
     /// ```
-    public init?(base64URLEncoded string: String) {
-        guard let bytes = [UInt8](base64URLEncoded: string) else { return nil }
+    @inlinable
+    public init?(base64URLEncoded string: some StringProtocol) {
+        guard let bytes = RFC_4648.Base64.URL.decode(string) else { return nil }
         self.init(bytes: bytes, endianness: .big)
     }
 
@@ -52,6 +62,8 @@ extension FixedWidthInteger {
     /// Returns nil if the string is invalid or if the decoded byte count doesn't match
     /// the integer's byte width.
     ///
+    /// Delegates to `RFC_4648.Base32.decode(_:)`.
+    ///
     /// - Parameter base32Encoded: Base32 encoded string (case-insensitive)
     ///
     /// ## Examples
@@ -59,8 +71,9 @@ extension FixedWidthInteger {
     /// ```swift
     /// let value = UInt32(base32Encoded: "AAA6EQA=")  // 123456
     /// ```
-    public init?(base32Encoded string: String) {
-        guard let bytes = [UInt8](base32Encoded: string) else { return nil }
+    @inlinable
+    public init?(base32Encoded string: some StringProtocol) {
+        guard let bytes = RFC_4648.Base32.decode(string) else { return nil }
         self.init(bytes: bytes, endianness: .big)
     }
 
@@ -70,6 +83,8 @@ extension FixedWidthInteger {
     /// Returns nil if the string is invalid or if the decoded byte count doesn't match
     /// the integer's byte width.
     ///
+    /// Delegates to `RFC_4648.Base32.Hex.decode(_:)`.
+    ///
     /// - Parameter base32HexEncoded: Base32-HEX encoded string (case-insensitive)
     ///
     /// ## Examples
@@ -77,8 +92,9 @@ extension FixedWidthInteger {
     /// ```swift
     /// let value = UInt32(base32HexEncoded: "000U4G0=")  // 123456
     /// ```
-    public init?(base32HexEncoded string: String) {
-        guard let bytes = [UInt8](base32HexEncoded: string) else { return nil }
+    @inlinable
+    public init?(base32HexEncoded string: some StringProtocol) {
+        guard let bytes = RFC_4648.Base32.Hex.decode(string) else { return nil }
         self.init(bytes: bytes, endianness: .big)
     }
 
@@ -87,6 +103,8 @@ extension FixedWidthInteger {
     /// Decodes the hexadecimal string to bytes and interprets them as a big-endian integer.
     /// Returns nil if the string is invalid or if the decoded byte count doesn't match
     /// the integer's byte width. Accepts strings with or without "0x" prefix.
+    ///
+    /// Delegates to `RFC_4648.Base16.decode(_:skipPrefix:)`.
     ///
     /// - Parameter hexEncoded: Hexadecimal encoded string (case-insensitive)
     ///
@@ -97,14 +115,9 @@ extension FixedWidthInteger {
     /// let value2 = UInt32(hexEncoded: "0xdeadbeef")  // 3735928559
     /// let value3 = UInt32(hexEncoded: "0xDEADBEEF")  // 3735928559
     /// ```
-    public init?(hexEncoded string: String) {
-        // Strip common prefixes
-        let cleaned =
-            string.hasPrefix("0x") || string.hasPrefix("0X")
-            ? String(string.dropFirst(2))
-            : string
-
-        guard let bytes = [UInt8](hexEncoded: cleaned) else { return nil }
+    @inlinable
+    public init?(hexEncoded string: some StringProtocol) {
+        guard let bytes = RFC_4648.Base16.decode(string, skipPrefix: true) else { return nil }
         self.init(bytes: bytes, endianness: .big)
     }
 }

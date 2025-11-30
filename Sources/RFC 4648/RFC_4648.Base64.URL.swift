@@ -2,148 +2,432 @@
 //  RFC_4648.Base64.URL.swift
 //  swift-rfc-4648
 //
-//  Created by Coen ten Thije Boonkkamp on 17/11/2025.
-//
+//  Base64URL encoding per RFC 4648 Section 5
 
 import INCITS_4_1986
 
+// MARK: - Base64URL Type
+
 extension RFC_4648.Base64 {
-    // MARK: - Base64URL (Section 5)
-
     /// Base64URL encoding (RFC 4648 Section 5) - URL and filename safe
+    ///
+    /// Base64URL uses a modified alphabet that replaces `+` with `-` and `/` with `_`,
+    /// making it safe for use in URLs and filenames. Padding is optional (default: off).
+    ///
+    /// ## Usage
+    ///
+    /// ```swift
+    /// // Static methods (authoritative)
+    /// RFC_4648.Base64.URL.encode(bytes, into: &buffer)
+    /// let decoded = RFC_4648.Base64.URL.decode("SGVsbG8")
+    ///
+    /// // Instance methods (convenience) - via base64.url
+    /// bytes.base64.url.encoded()
+    /// "SGVsbG8".base64.url.decoded()
+    /// ```
     public enum URL {
-        /// Base64URL encoding table (RFC 4648 Section 5)
-        public static let encodingTable = RFC_4648.EncodingTable(
-            encode: Array("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_".utf8)
-        )
+        /// Wrapper for instance-based convenience methods
+        public struct Wrapper<Wrapped> {
+            public let wrapped: Wrapped
 
-        /// Encodes bytes to Base64URL
-        /// - Parameters:
-        ///   - bytes: The bytes to encode
-        ///   - padding: Whether to include padding (default: false per RFC 7515)
-        /// - Returns: Base64URL encoded bytes
-        public static func encode<Bytes: Collection>(
+            @inlinable
+            public init(_ wrapped: Wrapped) {
+                self.wrapped = wrapped
+            }
+        }
+    }
+}
+
+// MARK: - Encoding Table
+
+extension RFC_4648.Base64.URL {
+    /// Base64URL encoding table (RFC 4648 Section 5)
+    public static let encodingTable = RFC_4648.EncodingTable(
+        encode: Array("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_".utf8)
+    )
+}
+
+// MARK: - Encoder (for String.base64.url(...) syntax)
+
+extension RFC_4648.Base64.URL {
+    /// Encoder for `String.base64.url(bytes)` syntax
+    ///
+    /// ## Usage
+    ///
+    /// ```swift
+    /// let encoded = String.base64.url([72, 101, 108, 108, 111])  // "SGVsbG8"
+    /// ```
+    public struct Encoder: Sendable {
+        @inlinable
+        public init() {}
+
+        /// Encodes bytes to Base64URL string
+        @inlinable
+        public func callAsFunction<Bytes: Collection>(
             _ bytes: Bytes,
             padding: Bool = false
-        ) -> [UInt8] where Bytes.Element == UInt8 {
-            guard !bytes.isEmpty else { return [] }
-            let bytes = Array(bytes)
-
-            var result = [UInt8]()
-            result.reserveCapacity(((bytes.count + 2) / 3) * 4)
-
-            var index = 0
-            while index < bytes.count {
-                let b1 = bytes[index]
-                let b2 = index + 1 < bytes.count ? bytes[index + 1] : 0
-                let b3 = index + 2 < bytes.count ? bytes[index + 2] : 0
-
-                let c1 = (b1 >> 2) & 0x3F
-                let c2 = ((b1 << 4) | (b2 >> 4)) & 0x3F
-                let c3 = ((b2 << 2) | (b3 >> 6)) & 0x3F
-                let c4 = b3 & 0x3F
-
-                result.append(encodingTable.encode[Int(c1)])
-                result.append(encodingTable.encode[Int(c2)])
-
-                if index + 1 < bytes.count {
-                    result.append(encodingTable.encode[Int(c3)])
-                } else if padding {
-                    result.append(RFC_4648.padding)
-                }
-
-                if index + 2 < bytes.count {
-                    result.append(encodingTable.encode[Int(c4)])
-                } else if padding {
-                    result.append(RFC_4648.padding)
-                }
-
-                index += 3
-            }
-
-            return result
+        ) -> String where Bytes.Element == UInt8 {
+            String(decoding: RFC_4648.Base64.URL.encode(bytes, padding: padding), as: UTF8.self)
         }
 
-        /// Decodes Base64URL encoded string
-        /// - Parameter string: Base64URL encoded string
-        /// - Returns: Decoded bytes, or nil if invalid
-        public static func decode(_ string: some StringProtocol) -> [UInt8]? {
-            let bytes = Array(string.utf8)
-            guard !bytes.isEmpty else { return [] }
+        /// Encodes an integer to Base64URL string (big-endian byte order)
+        @inlinable
+        public func callAsFunction<T: FixedWidthInteger>(
+            _ value: T,
+            padding: Bool = false
+        ) -> String {
+            callAsFunction(value.bytes(endianness: .big), padding: padding)
+        }
+    }
+}
 
-            let decodeTable = encodingTable.decode
-            var result = [UInt8]()
-            result.reserveCapacity((bytes.count * 3) / 4)
+// MARK: - Static Encode Methods (Authoritative)
 
-            var index = 0
-            while index < bytes.count {
-                // Skip whitespace
-                while index < bytes.count, bytes[index].ascii.isWhitespace {
-                    index += 1
+extension RFC_4648.Base64.URL {
+    /// Encodes bytes to Base64URL into a buffer (streaming)
+    ///
+    /// Base64URL encodes 3 bytes into 4 characters.
+    ///
+    /// - Parameters:
+    ///   - bytes: The bytes to encode
+    ///   - buffer: The buffer to append Base64URL characters to
+    ///   - padding: Whether to include padding characters (default: false per RFC 7515)
+    ///
+    /// ## Example
+    ///
+    /// ```swift
+    /// var buffer: [UInt8] = []
+    /// RFC_4648.Base64.URL.encode("Hello".utf8, into: &buffer)
+    /// // buffer contains "SGVsbG8" as bytes (no padding)
+    /// ```
+    @inlinable
+    public static func encode<Bytes: Collection, Buffer: RangeReplaceableCollection>(
+        _ bytes: Bytes,
+        into buffer: inout Buffer,
+        padding: Bool = false
+    ) where Bytes.Element == UInt8, Buffer.Element == UInt8 {
+        guard !bytes.isEmpty else { return }
+
+        let table = encodingTable.encode
+        var iterator = bytes.makeIterator()
+
+        while let b1 = iterator.next() {
+            let b2 = iterator.next()
+            let b3 = iterator.next()
+
+            // First character: high 6 bits of b1
+            buffer.append(table[Int((b1 >> 2) & 0x3F)])
+
+            // Second character: low 2 bits of b1 + high 4 bits of b2
+            let c2 = ((b1 << 4) | ((b2 ?? 0) >> 4)) & 0x3F
+            buffer.append(table[Int(c2)])
+
+            guard let b2 = b2 else {
+                if padding {
+                    buffer.append(RFC_4648.padding)
+                    buffer.append(RFC_4648.padding)
                 }
-                if index >= bytes.count { break }
+                break
+            }
 
-                // Base64URL allows missing padding
-                let remaining = bytes.count - index
-                if remaining < 2 { return nil }
+            // Third character: low 4 bits of b2 + high 2 bits of b3
+            let c3 = ((b2 << 2) | ((b3 ?? 0) >> 6)) & 0x3F
+            buffer.append(table[Int(c3)])
 
-                let c1 = decodeTable[Int(bytes[index])]
-                let c2 = decodeTable[Int(bytes[index + 1])]
+            guard let b3 = b3 else {
+                if padding {
+                    buffer.append(RFC_4648.padding)
+                }
+                break
+            }
 
-                guard c1 != 255, c2 != 255 else { return nil }
+            // Fourth character: low 6 bits of b3
+            buffer.append(table[Int(b3 & 0x3F)])
+        }
+    }
 
-                let b1 = (c1 << 2) | (c2 >> 4)
-                result.append(b1)
+    /// Encodes bytes to Base64URL, returning a new array
+    ///
+    /// - Parameters:
+    ///   - bytes: The bytes to encode
+    ///   - padding: Whether to include padding characters (default: false per RFC 7515)
+    /// - Returns: Base64URL encoded bytes
+    @inlinable
+    public static func encode<Bytes: Collection>(
+        _ bytes: Bytes,
+        padding: Bool = false
+    ) -> [UInt8] where Bytes.Element == UInt8 {
+        var result: [UInt8] = []
+        result.reserveCapacity(((bytes.count + 2) / 3) * 4)
+        encode(bytes, into: &result, padding: padding)
+        return result
+    }
+}
 
-                if remaining >= 3, bytes[index + 2] != RFC_4648.padding {
-                    let c3 = decodeTable[Int(bytes[index + 2])]
-                    guard c3 != 255 else { return nil }
+// MARK: - Static Decode Methods (Authoritative)
 
-                    let b2 = ((c2 & 0x0F) << 4) | (c3 >> 2)
-                    result.append(b2)
+extension RFC_4648.Base64.URL {
+    /// Decodes a single Base64URL character to its 6-bit value (PRIMITIVE)
+    ///
+    /// - Parameter sextet: ASCII byte of Base64URL character
+    /// - Returns: 6-bit value (0-63), or nil if invalid
+    ///
+    /// ## Example
+    ///
+    /// ```swift
+    /// RFC_4648.Base64.URL.decode(sextet: UInt8(ascii: "A"))  // 0
+    /// RFC_4648.Base64.URL.decode(sextet: UInt8(ascii: "_"))  // 63
+    /// RFC_4648.Base64.URL.decode(sextet: UInt8(ascii: "/"))  // nil (not URL-safe)
+    /// ```
+    @inlinable
+    public static func decode(sextet: UInt8) -> UInt8? {
+        let value = encodingTable.decode[Int(sextet)]
+        return value == 255 ? nil : value
+    }
 
-                    if remaining >= 4, bytes[index + 3] != RFC_4648.padding {
-                        let c4 = decodeTable[Int(bytes[index + 3])]
-                        guard c4 != 255 else { return nil }
+    /// Decodes Base64URL bytes into a buffer (streaming, no allocation)
+    ///
+    /// Supports both padded and unpadded input.
+    ///
+    /// - Parameters:
+    ///   - bytes: Base64URL encoded bytes
+    ///   - buffer: The buffer to append decoded bytes to
+    /// - Returns: `true` if decoding succeeded, `false` if invalid input
+    ///
+    /// ## Example
+    ///
+    /// ```swift
+    /// var buffer: [UInt8] = []
+    /// let success = RFC_4648.Base64.URL.decode("SGVsbG8".utf8, into: &buffer)
+    /// // buffer == [72, 101, 108, 108, 111] ("Hello")
+    /// ```
+    @inlinable
+    @discardableResult
+    public static func decode<Bytes: Collection, Buffer: RangeReplaceableCollection>(
+        _ bytes: Bytes,
+        into buffer: inout Buffer
+    ) -> Bool where Bytes.Element == UInt8, Buffer.Element == UInt8 {
+        guard !bytes.isEmpty else { return true }
 
-                        let b3 = ((c3 & 0x03) << 6) | c4
-                        result.append(b3)
-                        index += 4
-                    } else {
-                        index += 4
-                        if remaining < 4 { break }
-                    }
-                } else {
-                    index += 4
-                    if remaining < 3 { break }
+        let decodeTable = encodingTable.decode
+        var iterator = bytes.makeIterator()
+
+        // Collect up to 4 sextets at a time
+        var values = [UInt8]()
+        values.reserveCapacity(4)
+        var hasDecodedAny = false
+
+        while true {
+            values.removeAll(keepingCapacity: true)
+            var hitPadding = false
+
+            // Collect sextets for this group
+            while values.count < 4 {
+                guard let byte = iterator.next() else { break }
+                if byte == RFC_4648.padding { hitPadding = true; break }
+                if byte.ascii.isWhitespace { continue }
+                let value = decodeTable[Int(byte)]
+                guard value != 255 else { return false }
+                values.append(value)
+            }
+
+            // All-padding without data is invalid
+            if values.isEmpty && hitPadding && !hasDecodedAny { return false }
+            if values.isEmpty { break }
+            guard values.count >= 2 else { return false }
+            hasDecodedAny = true
+
+            // First byte: 6 bits from v1 + high 2 bits from v2
+            buffer.append((values[0] << 2) | (values[1] >> 4))
+
+            if values.count >= 3 {
+                // Second byte: low 4 bits from v2 + high 4 bits from v3
+                buffer.append((values[1] << 4) | (values[2] >> 2))
+
+                if values.count >= 4 {
+                    // Third byte: low 2 bits from v3 + 6 bits from v4
+                    buffer.append((values[2] << 6) | values[3])
                 }
             }
 
-            return result
+            if values.count < 4 { break }
         }
 
-        // MARK: - Collection Wrapper
+        return true
+    }
 
-        /// Wrapper for Base64URL operations on byte collections
-        public struct CollectionWrapper<Bytes: Collection> where Bytes.Element == UInt8 {
-            public let bytes: Bytes
+    /// Decodes Base64URL encoded bytes to a new array
+    ///
+    /// - Parameter bytes: Base64URL encoded bytes
+    /// - Returns: Decoded bytes, or nil if invalid
+    ///
+    /// ## Example
+    ///
+    /// ```swift
+    /// let decoded = RFC_4648.Base64.URL.decode("SGVsbG8".utf8)
+    /// // decoded == [72, 101, 108, 108, 111] ("Hello")
+    /// ```
+    @inlinable
+    public static func decode<Bytes: Collection>(
+        _ bytes: Bytes
+    ) -> [UInt8]? where Bytes.Element == UInt8 {
+        var result: [UInt8] = []
+        result.reserveCapacity((bytes.count * 3) / 4)
+        guard decode(bytes, into: &result) else { return nil }
+        return result
+    }
 
-            @inlinable
-            public init(_ bytes: Bytes) {
-                self.bytes = bytes
-            }
+    /// Decodes Base64URL encoded string
+    ///
+    /// Convenience overload that delegates to the byte-based version.
+    ///
+    /// - Parameter string: Base64URL encoded string
+    /// - Returns: Decoded bytes, or nil if invalid
+    ///
+    /// ## Example
+    ///
+    /// ```swift
+    /// let decoded = RFC_4648.Base64.URL.decode("SGVsbG8")
+    /// // decoded == [72, 101, 108, 108, 111] ("Hello")
+    /// ```
+    @inlinable
+    public static func decode(_ string: some StringProtocol) -> [UInt8]? {
+        decode(string.utf8)
+    }
 
-            /// Encodes bytes to Base64URL string
-            @inlinable
-            public func callAsFunction(padding: Bool = false) -> String {
-                encoded(padding: padding)
-            }
+    /// Decodes Base64URL to a FixedWidthInteger (PRIMITIVE)
+    ///
+    /// Decodes Base64URL bytes directly to an integer value without intermediate array allocation.
+    ///
+    /// - Parameter bytes: Base64URL encoded bytes
+    /// - Returns: Decoded integer value, or nil if invalid or overflow
+    ///
+    /// ## Example
+    ///
+    /// ```swift
+    /// let value: UInt32? = RFC_4648.Base64.URL.decode("AQIDBA".utf8)
+    /// // value == 0x01020304
+    /// ```
+    @inlinable
+    public static func decode<Bytes: Collection, T: FixedWidthInteger>(
+        _ bytes: Bytes,
+        as type: T.Type = T.self
+    ) -> T? where Bytes.Element == UInt8 {
+        guard !bytes.isEmpty else { return 0 }
 
-            /// Encodes bytes to Base64URL string
-            @inlinable
-            public func encoded(padding: Bool = false) -> String {
-                String(decoding: RFC_4648.Base64.URL.encode(bytes, padding: padding), as: UTF8.self)
-            }
+        let decodeTable = encodingTable.decode
+        var iterator = bytes.makeIterator()
+        var result: T = 0
+        var bitCount = 0
+        let maxBits = T.bitWidth
+
+        while let byte = iterator.next() {
+            if byte == RFC_4648.padding { break }
+            guard !byte.ascii.isWhitespace else { continue }
+
+            let value = decodeTable[Int(byte)]
+            guard value != 255 else { return nil }
+
+            bitCount += 6
+            guard bitCount <= maxBits else { return nil } // overflow
+
+            result = (result << 6) | T(value)
         }
+
+        return result
+    }
+}
+
+// MARK: - Instance Methods (Convenience) - Bytes
+
+extension RFC_4648.Base64.URL.Wrapper where Wrapped: Collection, Wrapped.Element == UInt8 {
+    // MARK: Encoding (bytes → Base64URL)
+
+    /// Encodes wrapped bytes to Base64URL into a buffer
+    ///
+    /// Delegates to static `RFC_4648.Base64.URL.encode(_:into:padding:)`.
+    @inlinable
+    public func encode<Buffer: RangeReplaceableCollection>(
+        into buffer: inout Buffer,
+        padding: Bool = false
+    ) where Buffer.Element == UInt8 {
+        RFC_4648.Base64.URL.encode(wrapped, into: &buffer, padding: padding)
+    }
+
+    /// Encodes wrapped bytes to Base64URL string
+    ///
+    /// Delegates to static `RFC_4648.Base64.URL.encode(_:padding:)`.
+    @inlinable
+    public func encoded(padding: Bool = false) -> String {
+        String(decoding: RFC_4648.Base64.URL.encode(wrapped, padding: padding), as: UTF8.self)
+    }
+
+    /// Encodes wrapped bytes to Base64URL string (callable syntax)
+    @inlinable
+    public func callAsFunction(padding: Bool = false) -> String {
+        encoded(padding: padding)
+    }
+
+    // MARK: Decoding (Base64URL bytes → raw bytes)
+
+    /// Decodes wrapped Base64URL-encoded bytes into a buffer
+    ///
+    /// Treats the wrapped bytes as ASCII Base64URL characters and decodes them.
+    /// Delegates to static `RFC_4648.Base64.URL.decode(_:into:)`.
+    @inlinable
+    @discardableResult
+    public func decode<Buffer: RangeReplaceableCollection>(
+        into buffer: inout Buffer
+    ) -> Bool where Buffer.Element == UInt8 {
+        RFC_4648.Base64.URL.decode(wrapped, into: &buffer)
+    }
+
+    /// Decodes wrapped Base64URL-encoded bytes to raw bytes
+    ///
+    /// Treats the wrapped bytes as ASCII Base64URL characters and decodes them.
+    /// Delegates to static `RFC_4648.Base64.URL.decode(_:)`.
+    @inlinable
+    public func decoded() -> [UInt8]? {
+        RFC_4648.Base64.URL.decode(wrapped)
+    }
+
+    /// Decodes wrapped Base64URL-encoded bytes to a FixedWidthInteger
+    ///
+    /// Treats the wrapped bytes as ASCII Base64URL characters and decodes them.
+    /// Delegates to static `RFC_4648.Base64.URL.decode(_:as:)`.
+    @inlinable
+    public func decoded<T: FixedWidthInteger>(as type: T.Type = T.self) -> T? {
+        RFC_4648.Base64.URL.decode(wrapped, as: type)
+    }
+}
+
+// MARK: - Instance Methods (Convenience) - String
+
+extension RFC_4648.Base64.URL.Wrapper where Wrapped: StringProtocol {
+    /// Decodes wrapped Base64URL string into a buffer
+    ///
+    /// Delegates to static `RFC_4648.Base64.URL.decode(_:into:)`.
+    @inlinable
+    @discardableResult
+    public func decode<Buffer: RangeReplaceableCollection>(
+        into buffer: inout Buffer
+    ) -> Bool where Buffer.Element == UInt8 {
+        RFC_4648.Base64.URL.decode(wrapped.utf8, into: &buffer)
+    }
+
+    /// Decodes wrapped Base64URL string to bytes
+    ///
+    /// Delegates to static `RFC_4648.Base64.URL.decode(_:)`.
+    @inlinable
+    public func decoded() -> [UInt8]? {
+        RFC_4648.Base64.URL.decode(wrapped)
+    }
+
+    /// Decodes wrapped Base64URL string to a FixedWidthInteger
+    ///
+    /// Delegates to static `RFC_4648.Base64.URL.decode(_:as:)`.
+    @inlinable
+    public func decoded<T: FixedWidthInteger>(as type: T.Type = T.self) -> T? {
+        RFC_4648.Base64.URL.decode(wrapped.utf8, as: type)
     }
 }

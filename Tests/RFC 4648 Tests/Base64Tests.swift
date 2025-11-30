@@ -24,7 +24,7 @@ struct Base64Tests {
     )
     func rFCVectors(input: String, expected: String) {
         let bytes = Array(input.utf8)
-        let encoded = String(base64Encoding: bytes)
+        let encoded = String.base64(bytes)
         #expect(encoded == expected, "Encoding '\(input)' should produce '\(expected)'")
 
         let decoded = [UInt8](base64Encoded: encoded)
@@ -47,7 +47,7 @@ struct Base64Tests {
     func paddingVariations(
         input: [UInt8], padding: Bool, expectedEncoded: String, expectedDecoded: [UInt8]?
     ) {
-        let encoded = String(base64Encoding: input, padding: padding)
+        let encoded = String.base64(input, padding: padding)
         #expect(encoded == expectedEncoded)
 
         let decoded = [UInt8](base64Encoded: encoded)
@@ -97,7 +97,7 @@ struct Base64Tests {
         ]
     )
     func binaryDataPatterns(input: [UInt8], expectedEncoded: String?) {
-        let encoded = String(base64Encoding: input)
+        let encoded = String.base64(input)
 
         if let expected = expectedEncoded {
             #expect(encoded == expected)
@@ -113,7 +113,7 @@ struct Base64Tests {
     func testLongString() {
         let longString = String(repeating: "Hello, World! ", count: 100)
         let input = Array(longString.utf8)
-        let encoded = String(base64Encoding: input)
+        let encoded = String.base64(input)
         let decoded = [UInt8](base64Encoded: encoded)
         #expect(decoded == input)
     }

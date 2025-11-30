@@ -181,6 +181,7 @@ struct ValidationTests {
     )
     func invalidHex(input: String) {
         #expect(!RFC_4648.Base16.isValid(input), "\(input) should be invalid hexadecimal")
+        #expect(!input.hex.isValid, "\(input) should be invalid hexadecimal")
     }
 
     @Test("Hexadecimal validation with prefix")

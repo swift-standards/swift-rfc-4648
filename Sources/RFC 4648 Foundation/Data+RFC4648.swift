@@ -15,7 +15,7 @@ extension Data {
     /// - Parameter padding: Whether to include padding characters (default: false per RFC 7515)
     /// - Returns: Base64URL encoded string
     public func base64URLEncodedString(padding: Bool = false) -> String {
-        String(base64URLEncoding: Array(self), padding: padding)
+        String.base64.url(Array(self), padding: padding)
     }
 
     /// Creates data from a Base64URL encoded string (RFC 4648 Section 5)
@@ -35,7 +35,7 @@ extension Data {
     /// - Parameter padding: Whether to include padding characters (default: true)
     /// - Returns: Base32 encoded string
     public func base32EncodedString(padding: Bool = true) -> String {
-        String(base32Encoding: Array(self), padding: padding)
+        String.base32(Array(self), padding: padding)
     }
 
     /// Creates data from a Base32 encoded string (RFC 4648 Section 6)
@@ -55,7 +55,7 @@ extension Data {
     /// - Parameter padding: Whether to include padding characters (default: true)
     /// - Returns: Base32-HEX encoded string
     public func base32HexEncodedString(padding: Bool = true) -> String {
-        String(base32HexEncoding: Array(self), padding: padding)
+        String.base32.hex(Array(self), padding: padding)
     }
 
     /// Creates data from a Base32-HEX encoded string (RFC 4648 Section 7)
@@ -74,7 +74,7 @@ extension Data {
     /// - Parameter uppercase: Whether to use uppercase hex digits (default: false)
     /// - Returns: Hexadecimal encoded string
     public func hexEncodedString(uppercase: Bool = false) -> String {
-        String(hexEncoding: Array(self), uppercase: uppercase)
+        String.hex(Array(self), uppercase: uppercase)
     }
 
     /// Creates data from a Base16 (hexadecimal) encoded string (RFC 4648 Section 8)

@@ -18,7 +18,7 @@ struct Base64URLTests {
         ]
     )
     func basicPatterns(input: [UInt8], expectedEncoded: String?) {
-        let encoded = String(base64URLEncoding: input)
+        let encoded = String.base64.url(input)
 
         if let expected = expectedEncoded {
             #expect(encoded == expected)
@@ -34,7 +34,7 @@ struct Base64URLTests {
     func uRLSafeCharacters() {
         // This input would produce '+' and '/' in standard Base64
         let input: [UInt8] = [0xFB, 0xFF, 0xFF]
-        let encoded = String(base64URLEncoding: input)
+        let encoded = String.base64.url(input)
 
         // Base64URL should use '-' and '_' instead of '+' and '/'
         #expect(encoded.contains("-") || encoded.contains("_"))
@@ -49,7 +49,7 @@ struct Base64URLTests {
     func specialCharacterSubstitution() {
         // Input that produces all special chars in Base64URL
         let input: [UInt8] = [0xFF, 0xFF]
-        let encoded = String(base64URLEncoding: input)
+        let encoded = String.base64.url(input)
 
         // Should contain '_' (not '/')
         #expect(encoded.contains("_"))
@@ -71,7 +71,7 @@ struct Base64URLTests {
     func paddingVariations(
         input: [UInt8], padding: Bool, expectedEncoded: String, shouldHavePadding: Bool
     ) {
-        let encoded = String(base64URLEncoding: input, padding: padding)
+        let encoded = String.base64.url(input, padding: padding)
         #expect(encoded == expectedEncoded)
         #expect(encoded.contains("=") == shouldHavePadding)
 
@@ -111,7 +111,7 @@ struct Base64URLTests {
     func jWTHeader() {
         // Typical JWT header: {"alg":"HS256","typ":"JWT"}
         let headerJSON = Array("{\"alg\":\"HS256\",\"typ\":\"JWT\"}".utf8)
-        let encoded = String(base64URLEncoding: headerJSON, padding: false)
+        let encoded = String.base64.url(headerJSON, padding: false)
 
         // Should not contain URL-unsafe characters
         #expect(!encoded.contains("+"))
@@ -127,7 +127,7 @@ struct Base64URLTests {
     @Test("Base64URL binary data")
     func binaryData() {
         let input: [UInt8] = [0x00, 0xFF, 0x80, 0x7F, 0x3E, 0x3F]
-        let encoded = String(base64URLEncoding: input)
+        let encoded = String.base64.url(input)
         let decoded = [UInt8](base64URLEncoded: encoded)
         #expect(decoded == input)
     }
@@ -136,7 +136,7 @@ struct Base64URLTests {
     func allSpecialCharacters() {
         // Input that generates maximum special chars
         let input: [UInt8] = [0xFF, 0xEF, 0xFF, 0xEF]
-        let encoded = String(base64URLEncoding: input)
+        let encoded = String.base64.url(input)
 
         // Should use '_' and '-' not '/' and '+'
         if encoded.contains("_") {
@@ -156,7 +156,7 @@ struct Base64URLTests {
     func testLongString() {
         let longString = String(repeating: "Hello, World! ", count: 100)
         let input = Array(longString.utf8)
-        let encoded = String(base64URLEncoding: input, padding: false)
+        let encoded = String.base64.url(input, padding: false)
         let decoded = [UInt8](base64URLEncoded: encoded)
         #expect(decoded == input)
     }
@@ -168,8 +168,8 @@ struct Base64URLTests {
         let input: [UInt8] = [0xFF, 0xFF]
 
         // Use padding for Base64 (standard Base64 requires it for decoding)
-        let base64 = String(base64Encoding: input, padding: true)
-        let base64url = String(base64URLEncoding: input, padding: false)
+        let base64 = String.base64(input, padding: true)
+        let base64url = String.base64.url(input, padding: false)
 
         // They should differ when special chars are present
         #expect(base64 != base64url)

@@ -29,7 +29,7 @@ import Testing
             ]
 
             for bytes in testCases {
-                let ourEncoding = String(base64Encoding: bytes, padding: true)
+                let ourEncoding = String.base64(bytes, padding: true)
                 let foundationEncoding = Data(bytes).base64EncodedString()
 
                 #expect(
@@ -74,7 +74,7 @@ import Testing
 
             for bytes in testBytes {
                 // Our implementation
-                let ourEncoded = String(base64Encoding: bytes)
+                let ourEncoded = String.base64(bytes)
                 let ourDecoded = [UInt8](base64Encoded: ourEncoded)
 
                 // Foundation implementation
@@ -94,7 +94,7 @@ import Testing
             let longBytes = (0..<200).map { UInt8($0 % 256) }
 
             // Our implementation (single line, no line breaks)
-            let ourEncoded = String(base64Encoding: longBytes)
+            let ourEncoded = String.base64(longBytes)
 
             // Foundation implementation without line length
             let foundationEncoded = Data(longBytes).base64EncodedString()
@@ -183,7 +183,7 @@ import Testing
         func emptyStringHandling() {
             let emptyBytes: [UInt8] = []
 
-            let ourEncoded = String(base64Encoding: emptyBytes)
+            let ourEncoded = String.base64(emptyBytes)
             let foundationEncoded = Data(emptyBytes).base64EncodedString()
 
             #expect(ourEncoded == foundationEncoded)
@@ -203,7 +203,7 @@ import Testing
             // Test with 1MB of data
             let largeBytes = (0..<(1024 * 1024)).map { UInt8($0 % 256) }
 
-            let ourEncoded = String(base64Encoding: largeBytes)
+            let ourEncoded = String.base64(largeBytes)
             let foundationEncoded = Data(largeBytes).base64EncodedString()
 
             #expect(ourEncoded == foundationEncoded)
@@ -221,7 +221,7 @@ import Testing
         func allByteValuesMatchFoundation() {
             let allBytes = (0...255).map { UInt8($0) }
 
-            let ourEncoded = String(base64Encoding: allBytes)
+            let ourEncoded = String.base64(allBytes)
             let foundationEncoded = Data(allBytes).base64EncodedString()
 
             #expect(ourEncoded == foundationEncoded)
@@ -239,7 +239,7 @@ import Testing
         func hexEncodingFormat() {
             let testBytes: [UInt8] = [0x00, 0x0F, 0xFF, 0xAB, 0xCD, 0xEF]
 
-            let ourHex = String(hexEncoding: testBytes)
+            let ourHex = String.hex(testBytes)
 
             // Verify format is correct (lowercase hex by default)
             #expect(ourHex == "000fffabcdef")
@@ -253,7 +253,7 @@ import Testing
         func hexUppercaseEncoding() {
             let testBytes: [UInt8] = [0x00, 0x0F, 0xFF, 0xAB, 0xCD, 0xEF]
 
-            let ourHexUpper = String(hexEncoding: testBytes, uppercase: true)
+            let ourHexUpper = String.hex(testBytes, uppercase: true)
 
             // Verify format is correct (uppercase hex)
             #expect(ourHexUpper == "000FFFABCDEF")
@@ -270,7 +270,7 @@ import Testing
             for byte in 0...255 {
                 let bytes: [UInt8] = [UInt8(byte)]
 
-                let ourEncoded = String(base64Encoding: bytes)
+                let ourEncoded = String.base64(bytes)
                 let foundationEncoded = Data(bytes).base64EncodedString()
 
                 #expect(
@@ -290,7 +290,7 @@ import Testing
                 for j in stride(from: 0, through: 255, by: 17) {
                     let bytes: [UInt8] = [UInt8(i), UInt8(j)]
 
-                    let ourEncoded = String(base64Encoding: bytes)
+                    let ourEncoded = String.base64(bytes)
                     let foundationEncoded = Data(bytes).base64EncodedString()
 
                     #expect(
@@ -309,7 +309,7 @@ import Testing
                     for k in stride(from: 0, through: 255, by: 51) {
                         let bytes: [UInt8] = [UInt8(i), UInt8(j), UInt8(k)]
 
-                        let ourEncoded = String(base64Encoding: bytes)
+                        let ourEncoded = String.base64(bytes)
                         let foundationEncoded = Data(bytes).base64EncodedString()
 
                         #expect(ourEncoded == foundationEncoded)
@@ -332,7 +332,7 @@ import Testing
         func specificLengths(length: Int) {
             let bytes = (0..<length).map { UInt8($0 % 256) }
 
-            let ourEncoded = String(base64Encoding: bytes)
+            let ourEncoded = String.base64(bytes)
             let foundationEncoded = Data(bytes).base64EncodedString()
 
             #expect(
@@ -358,7 +358,7 @@ import Testing
                 let length = Int.random(in: 1...500, using: &generator)
                 let bytes = (0..<length).map { _ in UInt8.random(in: 0...255, using: &generator) }
 
-                let ourEncoded = String(base64Encoding: bytes)
+                let ourEncoded = String.base64(bytes)
                 let foundationEncoded = Data(bytes).base64EncodedString()
 
                 #expect(ourEncoded == foundationEncoded)
@@ -392,7 +392,7 @@ import Testing
         func uTF8Strings(input: String) {
             let bytes = Array(input.utf8)
 
-            let ourEncoded = String(base64Encoding: bytes)
+            let ourEncoded = String.base64(bytes)
             let foundationEncoded = Data(bytes).base64EncodedString()
 
             #expect(
@@ -423,7 +423,7 @@ import Testing
         func paddingScenarios(length: Int, expectedPattern: String) {
             let bytes = Array(repeating: UInt8(0), count: length)
 
-            let ourEncoded = String(base64Encoding: bytes)
+            let ourEncoded = String.base64(bytes)
             let foundationEncoded = Data(bytes).base64EncodedString()
 
             #expect(ourEncoded == foundationEncoded)
@@ -437,7 +437,7 @@ import Testing
             for value in [UInt8.min, 1, 127, 128, 255, UInt8.max] {
                 let bytes = withUnsafeBytes(of: value.bigEndian) { Array($0) }
 
-                let ourEncoded = String(base64: value)
+                let ourEncoded = String.base64(value)
                 let foundationEncoded = Data(bytes).base64EncodedString()
 
                 #expect(
@@ -454,7 +454,7 @@ import Testing
             for value in values {
                 let bytes = withUnsafeBytes(of: value.bigEndian) { Array($0) }
 
-                let ourEncoded = String(base64: value)
+                let ourEncoded = String.base64(value)
                 let foundationEncoded = Data(bytes).base64EncodedString()
 
                 #expect(
@@ -475,7 +475,7 @@ import Testing
             for value in values {
                 let bytes = withUnsafeBytes(of: value.bigEndian) { Array($0) }
 
-                let ourEncoded = String(base64: value)
+                let ourEncoded = String.base64(value)
                 let foundationEncoded = Data(bytes).base64EncodedString()
 
                 #expect(
@@ -497,7 +497,7 @@ import Testing
             for value in values {
                 let bytes = withUnsafeBytes(of: value.bigEndian) { Array($0) }
 
-                let ourEncoded = String(base64: value)
+                let ourEncoded = String.base64(value)
                 let foundationEncoded = Data(bytes).base64EncodedString()
 
                 #expect(
@@ -515,7 +515,7 @@ import Testing
                 let length = 55
                 let bytes = (start..<min(start + length, 256)).map { UInt8($0) }
 
-                let ourEncoded = String(base64Encoding: bytes)
+                let ourEncoded = String.base64(bytes)
                 let foundationEncoded = Data(bytes).base64EncodedString()
 
                 #expect(ourEncoded == foundationEncoded)
@@ -532,7 +532,7 @@ import Testing
             ]
 
             for pattern in patterns {
-                let ourEncoded = String(base64Encoding: pattern)
+                let ourEncoded = String.base64(pattern)
                 let foundationEncoded = Data(pattern).base64EncodedString()
 
                 #expect(ourEncoded == foundationEncoded)
@@ -545,7 +545,7 @@ import Testing
                 let length = 1 << power  // 1, 2, 4, 8, 16, 32, 64, 128, 256, 512, 1024
                 let bytes = (0..<length).map { UInt8($0 % 256) }
 
-                let ourEncoded = String(base64Encoding: bytes)
+                let ourEncoded = String.base64(bytes)
                 let foundationEncoded = Data(bytes).base64EncodedString()
 
                 #expect(
@@ -628,7 +628,7 @@ import Testing
             let largeSize = 10 * 1024 * 1024
             let largeBytes = (0..<largeSize).map { UInt8($0 % 256) }
 
-            let ourEncoded = String(base64Encoding: largeBytes)
+            let ourEncoded = String.base64(largeBytes)
             let foundationEncoded = Data(largeBytes).base64EncodedString()
 
             #expect(
@@ -652,7 +652,7 @@ import Testing
             ]
 
             for pattern in patterns {
-                let ourEncoded = String(base64Encoding: pattern)
+                let ourEncoded = String.base64(pattern)
                 let foundationEncoded = Data(pattern).base64EncodedString()
 
                 #expect(ourEncoded == foundationEncoded)

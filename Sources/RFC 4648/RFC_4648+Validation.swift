@@ -6,10 +6,6 @@
 extension RFC_4648.Base64 {
     /// Checks if the string is valid Base64 encoding (RFC 4648 Section 4)
     ///
-    /// Validates the string without allocating memory for decoded output.
-    /// This is more efficient than attempting to decode when you only need
-    /// to check validity.
-    ///
     /// - Parameter string: The string to validate
     /// - Returns: true if the string is valid Base64, false otherwise
     ///
@@ -19,15 +15,14 @@ extension RFC_4648.Base64 {
     /// RFC_4648.Base64.isValid("Zm9vYmFy")  // true
     /// RFC_4648.Base64.isValid("!!!invalid")  // false
     /// ```
-    public static func isValid(_ string: String) -> Bool {
-        [UInt8](base64Encoded: string) != nil
+    @inlinable
+    public static func isValid(_ string: some StringProtocol) -> Bool {
+        decode(string) != nil
     }
 }
 
 extension RFC_4648.Base64.URL {
     /// Checks if the string is valid Base64URL encoding (RFC 4648 Section 5)
-    ///
-    /// Validates the string without allocating memory for decoded output.
     ///
     /// - Parameter string: The string to validate
     /// - Returns: true if the string is valid Base64URL, false otherwise
@@ -38,15 +33,15 @@ extension RFC_4648.Base64.URL {
     /// RFC_4648.Base64.URL.isValid("Zm9vYmFy")  // true
     /// RFC_4648.Base64.URL.isValid("A-B_")  // true (Base64URL uses - and _)
     /// ```
-    public static func isValid(_ string: String) -> Bool {
-        [UInt8](base64URLEncoded: string) != nil
+    @inlinable
+    public static func isValid(_ string: some StringProtocol) -> Bool {
+        decode(string) != nil
     }
 }
 
 extension RFC_4648.Base32 {
     /// Checks if the string is valid Base32 encoding (RFC 4648 Section 6)
     ///
-    /// Validates the string without allocating memory for decoded output.
     /// Base32 uses A-Z and 2-7, case-insensitive.
     ///
     /// - Parameter string: The string to validate
@@ -58,15 +53,15 @@ extension RFC_4648.Base32 {
     /// RFC_4648.Base32.isValid("MZXW6YTBOI======")  // true
     /// RFC_4648.Base32.isValid("123@#$")  // false
     /// ```
-    public static func isValid(_ string: String) -> Bool {
-        [UInt8](base32Encoded: string) != nil
+    @inlinable
+    public static func isValid(_ string: some StringProtocol) -> Bool {
+        decode(string) != nil
     }
 }
 
 extension RFC_4648.Base32.Hex {
     /// Checks if the string is valid Base32-HEX encoding (RFC 4648 Section 7)
     ///
-    /// Validates the string without allocating memory for decoded output.
     /// Base32-HEX uses 0-9 and A-V, case-insensitive.
     ///
     /// - Parameter string: The string to validate
@@ -78,15 +73,15 @@ extension RFC_4648.Base32.Hex {
     /// RFC_4648.Base32.Hex.isValid("CPNMUOJ1")  // true
     /// RFC_4648.Base32.Hex.isValid("XYZ123")  // false (X, Y, Z not in alphabet)
     /// ```
-    public static func isValid(_ string: String) -> Bool {
-        [UInt8](base32HexEncoded: string) != nil
+    @inlinable
+    public static func isValid(_ string: some StringProtocol) -> Bool {
+        decode(string) != nil
     }
 }
 
 extension RFC_4648.Base16 {
     /// Checks if the string is valid Base16 (hexadecimal) encoding (RFC 4648 Section 8)
     ///
-    /// Validates the string without allocating memory for decoded output.
     /// Accepts both lowercase and uppercase hex digits. Accepts strings with
     /// or without "0x" prefix.
     ///
@@ -100,13 +95,96 @@ extension RFC_4648.Base16 {
     /// RFC_4648.Base16.isValid("0xDEADBEEF")  // true
     /// RFC_4648.Base16.isValid("ghijk")  // false
     /// ```
-    public static func isValid(_ string: String) -> Bool {
-        // Strip common prefixes
-        let cleaned =
-            string.hasPrefix("0x") || string.hasPrefix("0X")
-            ? String(string.dropFirst(2))
-            : string
+    @inlinable
+    public static func isValid(_ string: some StringProtocol) -> Bool {
+        decode(string, skipPrefix: true) != nil
+    }
+}
 
-        return [UInt8](hexEncoded: cleaned) != nil
+// MARK: - Instance Validation (Convenience)
+
+extension RFC_4648.Base64.Wrapper where Wrapped: StringProtocol {
+    /// Checks if the wrapped string is valid Base64 encoding
+    ///
+    /// Delegates to the static `RFC_4648.Base64.isValid(_:)` method.
+    ///
+    /// ## Examples
+    ///
+    /// ```swift
+    /// "Zm9vYmFy".base64.isValid  // true
+    /// "!!!invalid".base64.isValid  // false
+    /// ```
+    @inlinable
+    public var isValid: Bool {
+        RFC_4648.Base64.isValid(wrapped)
+    }
+}
+
+extension RFC_4648.Base64.URL.Wrapper where Wrapped: StringProtocol {
+    /// Checks if the wrapped string is valid Base64URL encoding
+    ///
+    /// Delegates to the static `RFC_4648.Base64.URL.isValid(_:)` method.
+    ///
+    /// ## Examples
+    ///
+    /// ```swift
+    /// "Zm9vYmFy".base64.url.isValid  // true
+    /// "A-B_".base64.url.isValid  // true
+    /// ```
+    @inlinable
+    public var isValid: Bool {
+        RFC_4648.Base64.URL.isValid(wrapped)
+    }
+}
+
+extension RFC_4648.Base32.Wrapper where Wrapped: StringProtocol {
+    /// Checks if the wrapped string is valid Base32 encoding
+    ///
+    /// Delegates to the static `RFC_4648.Base32.isValid(_:)` method.
+    ///
+    /// ## Examples
+    ///
+    /// ```swift
+    /// "MZXW6YTBOI======".base32.isValid  // true
+    /// "123@#$".base32.isValid  // false
+    /// ```
+    @inlinable
+    public var isValid: Bool {
+        RFC_4648.Base32.isValid(wrapped)
+    }
+}
+
+extension RFC_4648.Base32.Hex.Wrapper where Wrapped: StringProtocol {
+    /// Checks if the wrapped string is valid Base32-HEX encoding
+    ///
+    /// Delegates to the static `RFC_4648.Base32.Hex.isValid(_:)` method.
+    ///
+    /// ## Examples
+    ///
+    /// ```swift
+    /// "CPNMUOJ1".base32.hex.isValid  // true
+    /// "XYZ123".base32.hex.isValid  // false
+    /// ```
+    @inlinable
+    public var isValid: Bool {
+        RFC_4648.Base32.Hex.isValid(wrapped)
+    }
+}
+
+extension RFC_4648.Base16.Wrapper where Wrapped: StringProtocol {
+    /// Checks if the wrapped string is valid Base16 (hexadecimal) encoding
+    ///
+    /// Delegates to the static `RFC_4648.Base16.isValid(_:)` method.
+    ///
+    /// ## Examples
+    ///
+    /// ```swift
+    /// "deadbeef".hex.isValid  // true
+    /// "0xDEADBEEF".hex.isValid  // true
+    /// "ghijk".hex.isValid  // false
+    /// ```
+    @inlinable
+    public var isValid: Bool {
+        RFC_4648.Base16.isValid(wrapped)
     }
 }

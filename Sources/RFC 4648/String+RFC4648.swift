@@ -1,210 +1,162 @@
 // String+RFC4648.swift
 // swift-rfc-4648
 //
-// String encoding extensions using RFC_4648 primitives
+// String extensions using RFC_4648 primitives
+//
+// Encoding: String.base64(bytes), String.base64.url(bytes), etc.
+// Decoding: "encoded".base64.decoded(), "encoded".base64.url.decoded(), etc.
 
-// MARK: - Base64 (RFC 4648 Section 4)
+// MARK: - Static Encoder Properties (for String.base64(...) syntax)
 
 extension String {
-    /// Creates a Base64 encoded string from bytes (RFC 4648 Section 4)
-    /// - Parameters:
-    ///   - base64Encoding: The bytes to encode
-    ///   - padding: Whether to include padding characters (default: true)
-    public init<Bytes: Collection>(
-        base64Encoding bytes: Bytes,
-        padding: Bool = true
-    ) where Bytes.Element == UInt8 {
-        let encoded = RFC_4648.Base64.encode(bytes, padding: padding)
-        self = String(decoding: encoded, as: UTF8.self)
-    }
-
-    /// Encode a FixedWidthInteger as Base64 (RFC 4648 Section 4)
+    /// Base64 encoder for `String.base64(bytes)` syntax
     ///
-    /// Converts the integer to bytes using big-endian byte order, then
-    /// applies Base64 encoding per RFC 4648 Section 4.
-    ///
-    /// - Parameters:
-    ///   - base64: The integer value to encode
-    ///   - padding: Include padding characters (default: true)
-    ///
-    /// ## Examples
+    /// ## Usage
     ///
     /// ```swift
-    /// String(base64: UInt32(123456))               // "AAHiQA=="
-    /// String(base64: UInt32(123456), padding: false) // "AAHiQA"
+    /// let encoded = String.base64([72, 101, 108, 108, 111])  // "SGVsbG8="
+    /// let encoded = String.base64.url([72, 101, 108, 108, 111])  // "SGVsbG8"
     /// ```
-    public init<T: FixedWidthInteger>(
-        base64 value: T,
-        padding: Bool = true
-    ) {
-        let bytes = RFC_4648.bytes(from: value)
-        self = String(base64Encoding: bytes, padding: padding)
-    }
+    public static let base64 = RFC_4648.Base64.Encoder()
+
+    /// Base64URL encoder for `String.base64URL(bytes)` syntax
+    ///
+    /// RFC 4648 Section 5 defines this URL and filename safe alphabet.
+    ///
+    /// ## Usage
+    ///
+    /// ```swift
+    /// let encoded = String.base64URL([72, 101, 108, 108, 111])  // "SGVsbG8"
+    /// ```
+    public static let base64URL = RFC_4648.Base64.URL.Encoder()
+
+    /// Base32 encoder for `String.base32(bytes)` syntax
+    ///
+    /// ## Usage
+    ///
+    /// ```swift
+    /// let encoded = String.base32([72, 101, 108, 108, 111])  // "JBSWY3DP"
+    /// let encoded = String.base32.hex([72, 101, 108, 108, 111])  // "91IMOR3F"
+    /// ```
+    public static let base32 = RFC_4648.Base32.Encoder()
+
+    /// Base32-HEX encoder for `String.base32Hex(bytes)` syntax
+    ///
+    /// RFC 4648 Section 7 defines this extended hex alphabet.
+    ///
+    /// ## Usage
+    ///
+    /// ```swift
+    /// let encoded = String.base32Hex([72, 101, 108, 108, 111])  // "91IMOR3F"
+    /// ```
+    public static let base32Hex = RFC_4648.Base32.Hex.Encoder()
+
+    /// Hex encoder for `String.hex(bytes)` syntax
+    ///
+    /// ## Usage
+    ///
+    /// ```swift
+    /// let encoded = String.hex([0xde, 0xad, 0xbe, 0xef])  // "deadbeef"
+    /// let encoded = String.hex([0xde, 0xad], uppercase: true)  // "DEAD"
+    /// ```
+    public static let hex = RFC_4648.Base16.Encoder()
+
+    /// Base16 encoder (alias for `hex`) for `String.base16(bytes)` syntax
+    ///
+    /// RFC 4648 Section 8 calls this encoding "Base16" (also known as hex).
+    ///
+    /// ## Usage
+    ///
+    /// ```swift
+    /// let encoded = String.base16([0xde, 0xad, 0xbe, 0xef])  // "deadbeef"
+    /// ```
+    public static let base16 = RFC_4648.Base16.Encoder()
 }
 
-// MARK: - Base64URL (RFC 4648 Section 5)
+// MARK: - StringProtocol Decoding Accessors
 
-extension String {
-    /// Creates a Base64URL encoded string from bytes (RFC 4648 Section 5)
-    /// Base64URL uses '-' and '_' instead of '+' and '/', making it URL and filename safe.
-    /// - Parameters:
-    ///   - base64URLEncoding: The bytes to encode
-    ///   - padding: Whether to include padding characters (default: false per RFC 7515)
-    public init<Bytes: Collection>(
-        base64URLEncoding bytes: Bytes,
-        padding: Bool = false
-    ) where Bytes.Element == UInt8 {
-        let encoded = RFC_4648.Base64.URL.encode(bytes, padding: padding)
-        self = String(decoding: encoded, as: UTF8.self)
-    }
-
-    /// Encode a FixedWidthInteger as Base64URL (RFC 4648 Section 5)
+extension StringProtocol {
+    /// Access to Base64 instance operations for decoding
     ///
-    /// Converts the integer to bytes using big-endian byte order, then
-    /// applies Base64URL encoding (URL-safe variant) per RFC 4648 Section 5.
-    ///
-    /// - Parameters:
-    ///   - base64URL: The integer value to encode
-    ///   - padding: Include padding characters (default: false per RFC 7515)
-    ///
-    /// ## Examples
+    /// ## Usage
     ///
     /// ```swift
-    /// String(base64URL: UInt32(123456))               // "AAHiQA"
-    /// String(base64URL: UInt32(123456), padding: true) // "AAHiQA=="
+    /// "SGVsbG8=".base64.decoded()  // [72, 101, 108, 108, 111] ("Hello")
+    /// "SGVsbG8=".base64.isValid    // true
+    /// "SGVsbG8".base64.url.decoded()  // [72, 101, 108, 108, 111] (URL variant)
     /// ```
-    public init<T: FixedWidthInteger>(
-        base64URL value: T,
-        padding: Bool = false
-    ) {
-        let bytes = RFC_4648.bytes(from: value)
-        self = String(base64URLEncoding: bytes, padding: padding)
-    }
-}
-
-// MARK: - Base32 (RFC 4648 Section 6)
-
-extension String {
-    /// Creates a Base32 encoded string from bytes (RFC 4648 Section 6)
-    /// Base32 uses 32-character alphabet (A-Z, 2-7), case-insensitive for decoding
-    /// - Parameters:
-    ///   - base32Encoding: The bytes to encode
-    ///   - padding: Whether to include padding characters (default: true)
-    public init<Bytes: Collection>(
-        base32Encoding bytes: Bytes,
-        padding: Bool = true
-    ) where Bytes.Element == UInt8 {
-        let encoded = RFC_4648.Base32.encode(bytes, padding: padding)
-        self = String(decoding: encoded, as: UTF8.self)
+    @inlinable
+    public var base64: RFC_4648.Base64.Wrapper<Self> {
+        RFC_4648.Base64.Wrapper(self)
     }
 
-    /// Encode a FixedWidthInteger as Base32 (RFC 4648 Section 6)
+    /// Access to Base64URL instance operations for decoding
     ///
-    /// Converts the integer to bytes using big-endian byte order, then
-    /// applies Base32 encoding per RFC 4648 Section 6.
+    /// RFC 4648 Section 5 defines this URL and filename safe alphabet.
     ///
-    /// - Parameters:
-    ///   - base32: The integer value to encode
-    ///   - padding: Include padding characters (default: true)
-    ///
-    /// ## Examples
+    /// ## Usage
     ///
     /// ```swift
-    /// String(base32: UInt32(123456))               // "AAPCQAA====="
-    /// String(base32: UInt32(123456), padding: false) // "AAPCQAA"
+    /// "SGVsbG8".base64URL.decoded()  // [72, 101, 108, 108, 111] ("Hello")
     /// ```
-    public init<T: FixedWidthInteger>(
-        base32 value: T,
-        padding: Bool = true
-    ) {
-        let bytes = RFC_4648.bytes(from: value)
-        self = String(base32Encoding: bytes, padding: padding)
-    }
-}
-
-// MARK: - Base32-HEX (RFC 4648 Section 7)
-
-extension String {
-    /// Creates a Base32-HEX encoded string from bytes (RFC 4648 Section 7)
-    /// Base32-HEX uses 0-9,A-V alphabet, case-insensitive for decoding
-    /// - Parameters:
-    ///   - base32HexEncoding: The bytes to encode
-    ///   - padding: Whether to include padding characters (default: true)
-    public init<Bytes: Collection>(
-        base32HexEncoding bytes: Bytes,
-        padding: Bool = true
-    ) where Bytes.Element == UInt8 {
-        let encoded = RFC_4648.Base32.Hex.encode(bytes, padding: padding)
-        self = String(decoding: encoded, as: UTF8.self)
+    @inlinable
+    public var base64URL: RFC_4648.Base64.URL.Wrapper<Self> {
+        RFC_4648.Base64.URL.Wrapper(self)
     }
 
-    /// Encode a FixedWidthInteger as Base32-HEX (RFC 4648 Section 7)
+    /// Access to Base32 instance operations for decoding
     ///
-    /// Converts the integer to bytes using big-endian byte order, then
-    /// applies Base32-HEX encoding (Extended Hex Alphabet) per RFC 4648 Section 7.
-    ///
-    /// - Parameters:
-    ///   - base32Hex: The integer value to encode
-    ///   - padding: Include padding characters (default: true)
-    ///
-    /// ## Examples
+    /// ## Usage
     ///
     /// ```swift
-    /// String(base32Hex: UInt32(123456))               // "00F2G00====="
-    /// String(base32Hex: UInt32(123456), padding: false) // "00F2G00"
+    /// "JBSWY3DP".base32.decoded()  // [72, 101, 108, 108, 111] ("Hello")
+    /// "JBSWY3DP".base32.isValid    // true
+    /// "91IMOR3F".base32.hex.decoded()  // [72, 101, 108, 108, 111] (HEX variant)
     /// ```
-    public init<T: FixedWidthInteger>(
-        base32Hex value: T,
-        padding: Bool = true
-    ) {
-        let bytes = RFC_4648.bytes(from: value)
-        self = String(base32HexEncoding: bytes, padding: padding)
-    }
-}
-
-// MARK: - Base16/Hex (RFC 4648 Section 8)
-
-extension String {
-    /// Creates a Base16 (hexadecimal) encoded string from bytes (RFC 4648 Section 8)
-    /// - Parameters:
-    ///   - hexEncoding: The bytes to encode
-    ///   - uppercase: Whether to use uppercase hex digits (default: false)
-    public init<Bytes: Collection>(
-        hexEncoding bytes: Bytes,
-        uppercase: Bool = false
-    ) where Bytes.Element == UInt8 {
-        let encoded = RFC_4648.Base16.encode(bytes, uppercase: uppercase)
-        self = String(decoding: encoded, as: UTF8.self)
+    @inlinable
+    public var base32: RFC_4648.Base32.Wrapper<Self> {
+        RFC_4648.Base32.Wrapper(self)
     }
 
-    /// Encode a FixedWidthInteger as hexadecimal (RFC 4648 Section 8)
+    /// Access to Base32-HEX instance operations for decoding
     ///
-    /// Converts the integer to bytes using big-endian byte order, then
-    /// applies hexadecimal encoding per RFC 4648 Section 8.
+    /// RFC 4648 Section 7 defines this extended hex alphabet.
     ///
-    /// - Parameters:
-    ///   - hex: The integer value to encode
-    ///   - prefix: Prefix string (default: "0x" for standard hex notation)
-    ///   - uppercase: Use uppercase hex digits (default: false)
-    ///
-    /// - Returns: Hexadecimal string representation
-    ///
-    /// ## Examples
+    /// ## Usage
     ///
     /// ```swift
-    /// String(hex: 255)                      // "0xff"
-    /// String(hex: 255, prefix: "")          // "ff"
-    /// String(hex: 255, uppercase: true)     // "0xFF"
-    /// String(hex: UInt16(0xABCD))           // "0xabcd"
-    /// String(hex: Int8(-1))                 // "0xff"
+    /// "91IMOR3F".base32Hex.decoded()  // [72, 101, 108, 108, 111] ("Hello")
     /// ```
-    public init<T: FixedWidthInteger>(
-        hex value: T,
-        prefix: String = "0x",
-        uppercase: Bool = false
-    ) {
-        let bytes = RFC_4648.bytes(from: value)
-        let encoded = String(hexEncoding: bytes, uppercase: uppercase)
-        self = prefix + encoded
+    @inlinable
+    public var base32Hex: RFC_4648.Base32.Hex.Wrapper<Self> {
+        RFC_4648.Base32.Hex.Wrapper(self)
+    }
+
+    /// Access to Base16/Hex instance operations for decoding
+    ///
+    /// ## Usage
+    ///
+    /// ```swift
+    /// "deadbeef".hex.decoded()  // [0xde, 0xad, 0xbe, 0xef]
+    /// "48656c6c6f".hex.decoded()  // [72, 101, 108, 108, 111] ("Hello")
+    /// "deadbeef".hex.isValid  // true
+    /// ```
+    @inlinable
+    public var hex: RFC_4648.Base16.Wrapper<Self> {
+        RFC_4648.Base16.Wrapper(self)
+    }
+
+    /// Access to Base16 instance operations for decoding (alias for `hex`)
+    ///
+    /// RFC 4648 Section 8 calls this encoding "Base16" (also known as hex).
+    ///
+    /// ## Usage
+    ///
+    /// ```swift
+    /// "deadbeef".base16.decoded()  // [0xde, 0xad, 0xbe, 0xef]
+    /// ```
+    @inlinable
+    public var base16: RFC_4648.Base16.Wrapper<Self> {
+        RFC_4648.Base16.Wrapper(self)
     }
 }
