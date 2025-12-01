@@ -285,13 +285,13 @@ extension RFC_4648.Base16 {
             // Peek at first two bytes
             guard let first = iterator.next() else { return true }
 
-            if first == 0x30 { // '0'
+            if first == 0x30 {  // '0'
                 guard let second = iterator.next() else {
                     // Just "0" - decode as single zero nibble? No, need pairs.
                     // Single '0' is invalid for byte decoding
                     return false
                 }
-                if second != 0x78 && second != 0x58 { // 'x' or 'X'
+                if second != 0x78 && second != 0x58 {  // 'x' or 'X'
                     // Not a prefix, these are actual hex digits
                     // Decode this pair
                     let highNibble = decodeTable[Int(first)]
@@ -326,11 +326,11 @@ extension RFC_4648.Base16 {
             // Skip whitespace
             var highByte = high
             while highByte.ascii.isWhitespace {
-                guard let next = iterator.next() else { return true } // trailing whitespace ok
+                guard let next = iterator.next() else { return true }  // trailing whitespace ok
                 highByte = next
             }
 
-            guard let low = iterator.next() else { return false } // odd number of hex chars
+            guard let low = iterator.next() else { return false }  // odd number of hex chars
 
             var lowByte = low
             while lowByte.ascii.isWhitespace {
@@ -430,9 +430,9 @@ extension RFC_4648.Base16 {
         if skipPrefix {
             guard let first = iterator.next() else { return 0 }
 
-            if first == 0x30 { // '0'
+            if first == 0x30 {  // '0'
                 if let second = iterator.next() {
-                    if second == 0x78 || second == 0x58 { // 'x' or 'X'
+                    if second == 0x78 || second == 0x58 {  // 'x' or 'X'
                         // Prefix consumed, continue
                     } else if !second.ascii.isWhitespace {
                         // Not a prefix, these are hex digits
@@ -468,7 +468,7 @@ extension RFC_4648.Base16 {
             guard nibble != 255 else { return nil }
 
             nibbleCount += 1
-            guard nibbleCount <= maxNibbles else { return nil } // overflow
+            guard nibbleCount <= maxNibbles else { return nil }  // overflow
 
             result = result << 4 | T(nibble)
         }

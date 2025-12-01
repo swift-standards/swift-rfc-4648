@@ -14,7 +14,7 @@ struct BinaryIntegerDecodingTests {
     @Test("UInt32 Base64 decoding")
     func uInt32Base64Decoding() {
         let value = UInt32(123_456)
-        let encoded = String.base64( value)
+        let encoded = String.base64(value)
 
         let decoded = UInt32(base64Encoded: encoded)
         #expect(decoded == value)
@@ -34,7 +34,7 @@ struct BinaryIntegerDecodingTests {
         ]
     )
     func uInt32Base64RoundTrip(value: UInt32) {
-        let encoded = String.base64( value)
+        let encoded = String.base64(value)
         let decoded = UInt32(base64Encoded: encoded)
 
         #expect(decoded == value, "Failed for \(value)")
@@ -47,7 +47,7 @@ struct BinaryIntegerDecodingTests {
         ]
     )
     func uInt8Base64RoundTrip(value: UInt8) {
-        let encoded = String.base64( value)
+        let encoded = String.base64(value)
         let decoded = UInt8(base64Encoded: encoded)
 
         #expect(decoded == value)
@@ -60,7 +60,7 @@ struct BinaryIntegerDecodingTests {
         ]
     )
     func uInt16Base64RoundTrip(value: UInt16) {
-        let encoded = String.base64( value)
+        let encoded = String.base64(value)
         let decoded = UInt16(base64Encoded: encoded)
 
         #expect(decoded == value)
@@ -76,7 +76,7 @@ struct BinaryIntegerDecodingTests {
         ]
     )
     func uInt64Base64RoundTrip(value: UInt64) {
-        let encoded = String.base64( value)
+        let encoded = String.base64(value)
         let decoded = UInt64(base64Encoded: encoded)
 
         #expect(decoded == value)
@@ -87,7 +87,7 @@ struct BinaryIntegerDecodingTests {
         let values: [Int32] = [-1, -128, 0, 127, Int32.max, Int32.min]
 
         for value in values {
-            let encoded = String.base64( value)
+            let encoded = String.base64(value)
             let decoded = Int32(base64Encoded: encoded)
 
             #expect(decoded == value, "Failed for \(value)")
@@ -97,7 +97,7 @@ struct BinaryIntegerDecodingTests {
     @Test("Wrong size Base64 decoding fails")
     func wrongSizeBase64Decoding() {
         let uint32Value = UInt32(123_456)
-        let encoded = String.base64( uint32Value)
+        let encoded = String.base64(uint32Value)
 
         // Try to decode 4 bytes as UInt8 (should fail)
         #expect(UInt8(base64Encoded: encoded) == nil)
@@ -115,7 +115,7 @@ struct BinaryIntegerDecodingTests {
         ]
     )
     func uInt32Base64URLRoundTrip(value: UInt32) {
-        let encoded = String.base64.url( value)
+        let encoded = String.base64.url(value)
         let decoded = UInt32(base64URLEncoded: encoded)
 
         #expect(decoded == value)
@@ -130,7 +130,7 @@ struct BinaryIntegerDecodingTests {
         ]
     )
     func uInt32Base32RoundTrip(value: UInt32) {
-        let encoded = String.base32( value)
+        let encoded = String.base32(value)
         let decoded = UInt32(base32Encoded: encoded)
 
         #expect(decoded == value)
@@ -139,7 +139,7 @@ struct BinaryIntegerDecodingTests {
     @Test("Base32 case insensitive decoding")
     func base32CaseInsensitive() {
         let value = UInt32(123_456)
-        let upper = String.base32( value)  // Default uppercase
+        let upper = String.base32(value)  // Default uppercase
         let lower = upper.lowercased()
 
         #expect(UInt32(base32Encoded: upper) == value)
@@ -155,7 +155,7 @@ struct BinaryIntegerDecodingTests {
         ]
     )
     func uInt32Base32HexRoundTrip(value: UInt32) {
-        let encoded = String.base32.hex( value)
+        let encoded = String.base32.hex(value)
         let decoded = UInt32(base32HexEncoded: encoded)
 
         #expect(decoded == value)
@@ -178,7 +178,7 @@ struct BinaryIntegerDecodingTests {
         ]
     )
     func uInt8HexRoundTrip(value: UInt8) {
-        let encoded = String.hex( value, prefix: "")
+        let encoded = String.hex(value, prefix: "")
         let decoded = UInt8(hexEncoded: encoded)
 
         #expect(decoded == value)
@@ -191,7 +191,7 @@ struct BinaryIntegerDecodingTests {
         ]
     )
     func uInt16HexRoundTrip(value: UInt16) {
-        let encoded = String.hex( value, prefix: "")
+        let encoded = String.hex(value, prefix: "")
         let decoded = UInt16(hexEncoded: encoded)
 
         #expect(decoded == value)
@@ -206,7 +206,7 @@ struct BinaryIntegerDecodingTests {
         ]
     )
     func uInt64HexRoundTrip(value: UInt64) {
-        let encoded = String.hex( value, prefix: "")
+        let encoded = String.hex(value, prefix: "")
         let decoded = UInt64(hexEncoded: encoded)
 
         #expect(decoded == value)
@@ -244,41 +244,41 @@ struct BinaryIntegerDecodingTests {
     func zeroValue() {
         let zero = UInt32(0)
 
-        #expect(UInt32(base64Encoded: String.base64( zero)) == zero)
-        #expect(UInt32(base64URLEncoded: String.base64.url( zero)) == zero)
-        #expect(UInt32(base32Encoded: String.base32( zero)) == zero)
-        #expect(UInt32(base32HexEncoded: String.base32.hex( zero)) == zero)
-        #expect(UInt32(hexEncoded: String.hex( zero, prefix: "")) == zero)
+        #expect(UInt32(base64Encoded: String.base64(zero)) == zero)
+        #expect(UInt32(base64URLEncoded: String.base64.url(zero)) == zero)
+        #expect(UInt32(base32Encoded: String.base32(zero)) == zero)
+        #expect(UInt32(base32HexEncoded: String.base32.hex(zero)) == zero)
+        #expect(UInt32(hexEncoded: String.hex(zero, prefix: "")) == zero)
     }
 
     @Test("Maximum value across all encodings")
     func maxValue() {
         let max = UInt32.max
 
-        #expect(UInt32(base64Encoded: String.base64( max)) == max)
-        #expect(UInt32(base64URLEncoded: String.base64.url( max)) == max)
-        #expect(UInt32(base32Encoded: String.base32( max)) == max)
-        #expect(UInt32(base32HexEncoded: String.base32.hex( max)) == max)
-        #expect(UInt32(hexEncoded: String.hex( max, prefix: "")) == max)
+        #expect(UInt32(base64Encoded: String.base64(max)) == max)
+        #expect(UInt32(base64URLEncoded: String.base64.url(max)) == max)
+        #expect(UInt32(base32Encoded: String.base32(max)) == max)
+        #expect(UInt32(base32HexEncoded: String.base32.hex(max)) == max)
+        #expect(UInt32(hexEncoded: String.hex(max, prefix: "")) == max)
     }
 
     // MARK: - All Integer Types
 
     @Test("All unsigned integer types supported")
     func allUnsignedTypes() {
-        _ = UInt8(base64Encoded: String.base64( UInt8(42)))
-        _ = UInt16(base64Encoded: String.base64( UInt16(42)))
-        _ = UInt32(base64Encoded: String.base64( UInt32(42)))
-        _ = UInt64(base64Encoded: String.base64( UInt64(42)))
-        _ = UInt(base64Encoded: String.base64( UInt(42)))
+        _ = UInt8(base64Encoded: String.base64(UInt8(42)))
+        _ = UInt16(base64Encoded: String.base64(UInt16(42)))
+        _ = UInt32(base64Encoded: String.base64(UInt32(42)))
+        _ = UInt64(base64Encoded: String.base64(UInt64(42)))
+        _ = UInt(base64Encoded: String.base64(UInt(42)))
     }
 
     @Test("All signed integer types supported")
     func allSignedTypes() {
-        _ = Int8(base64Encoded: String.base64( Int8(42)))
-        _ = Int16(base64Encoded: String.base64( Int16(42)))
-        _ = Int32(base64Encoded: String.base64( Int32(42)))
-        _ = Int64(base64Encoded: String.base64( Int64(42)))
-        _ = Int(base64Encoded: String.base64( Int(42)))
+        _ = Int8(base64Encoded: String.base64(Int8(42)))
+        _ = Int16(base64Encoded: String.base64(Int16(42)))
+        _ = Int32(base64Encoded: String.base64(Int32(42)))
+        _ = Int64(base64Encoded: String.base64(Int64(42)))
+        _ = Int(base64Encoded: String.base64(Int(42)))
     }
 }

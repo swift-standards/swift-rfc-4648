@@ -210,9 +210,11 @@ extension RFC_4648 {
 
             guard let b2 = b2 else {
                 if padding {
-                    buffer.append(contentsOf: [RFC_4648.padding, RFC_4648.padding,
-                                               RFC_4648.padding, RFC_4648.padding,
-                                               RFC_4648.padding, RFC_4648.padding])
+                    buffer.append(contentsOf: [
+                        RFC_4648.padding, RFC_4648.padding,
+                        RFC_4648.padding, RFC_4648.padding,
+                        RFC_4648.padding, RFC_4648.padding,
+                    ])
                 }
                 break
             }
@@ -226,8 +228,10 @@ extension RFC_4648 {
 
             guard let b3 = b3 else {
                 if padding {
-                    buffer.append(contentsOf: [RFC_4648.padding, RFC_4648.padding,
-                                               RFC_4648.padding, RFC_4648.padding])
+                    buffer.append(contentsOf: [
+                        RFC_4648.padding, RFC_4648.padding,
+                        RFC_4648.padding, RFC_4648.padding,
+                    ])
                 }
                 break
             }
@@ -290,7 +294,10 @@ extension RFC_4648 {
             // Collect quintets for this group
             while values.count < 8 {
                 guard let byte = iterator.next() else { break }
-                if byte == RFC_4648.padding { hitPadding = true; break }
+                if byte == RFC_4648.padding {
+                    hitPadding = true
+                    break
+                }
                 if byte.ascii.isWhitespace { continue }
                 let value = decodeTable[Int(byte)]
                 guard value != 255 else { return false }
