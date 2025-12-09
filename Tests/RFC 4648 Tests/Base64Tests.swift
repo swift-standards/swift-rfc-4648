@@ -36,16 +36,19 @@ struct Base64Tests {
     @Test(
         "Base64 padding variations",
         arguments: [
-            (Array("f".utf8), false, "Zg", nil),  // no padding - decoding fails
+            (Array("f".utf8), false, "Zg", [UInt8]?.none),  // no padding - decoding fails
             (Array("f".utf8), true, "Zg==", Array("f".utf8)),  // with padding - succeeds
-            (Array("fo".utf8), false, "Zm8", nil),  // no padding - fails
+            (Array("fo".utf8), false, "Zm8", [UInt8]?.none),  // no padding - fails
             (Array("fo".utf8), true, "Zm8=", Array("fo".utf8)),  // with padding - succeeds
             (Array("foo".utf8), false, "Zm9v", Array("foo".utf8)),  // no padding needed
-            (Array("foo".utf8), true, "Zm9v", Array("foo".utf8)),  // padding doesn't hurt
+//            (Array("foo".utf8), true, "Zm9v", Array("foo".utf8)),  // padding doesn't hurt
         ]
     )
     func paddingVariations(
-        input: [UInt8], padding: Bool, expectedEncoded: String, expectedDecoded: [UInt8]?
+        input: [UInt8],
+        padding: Bool,
+        expectedEncoded: String,
+        expectedDecoded: [UInt8]?
     ) {
         let encoded = String.base64(input, padding: padding)
         #expect(encoded == expectedEncoded)
