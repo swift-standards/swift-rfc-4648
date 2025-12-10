@@ -41,7 +41,7 @@ struct Base64Tests {
             (Array("fo".utf8), false, "Zm8", [UInt8]?.none),  // no padding - fails
             (Array("fo".utf8), true, "Zm8=", Array("fo".utf8)),  // with padding - succeeds
             (Array("foo".utf8), false, "Zm9v", Array("foo".utf8)),  // no padding needed
-//            (Array("foo".utf8), true, "Zm9v", Array("foo".utf8)),  // padding doesn't hurt
+            //            (Array("foo".utf8), true, "Zm9v", Array("foo".utf8)),  // padding doesn't hurt
         ]
     )
     func paddingVariations(
