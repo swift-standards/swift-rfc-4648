@@ -16,7 +16,7 @@ let package = Package(
         .library(name: "RFC 4648 Foundation", targets: ["RFC 4648 Foundation"]),
     ],
     dependencies: [
-        .package(url: "https://github.com/swift-standards/swift-standards", from: "0.10.0"),
+        .package(url: "https://github.com/swift-standards/swift-standards", from: "0.18.0"),
         .package(url: "https://github.com/swift-standards/swift-incits-4-1986", from: "0.6.3"),
     ],
     targets: [
@@ -25,6 +25,9 @@ let package = Package(
             dependencies: [
                 .product(name: "Standards", package: "swift-standards"),
                 .product(name: "INCITS 4 1986", package: "swift-incits-4-1986"),
+            ],
+            swiftSettings: [
+                .enableExperimentalFeature("Lifetimes"),
             ]
         ),
         .target(
