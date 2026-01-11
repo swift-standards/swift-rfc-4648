@@ -5,6 +5,7 @@
 //  Base16 (Hexadecimal) encoding per RFC 4648 Section 8
 
 import INCITS_4_1986
+import Binary_Primitives
 
 // MARK: - Base16 Type
 

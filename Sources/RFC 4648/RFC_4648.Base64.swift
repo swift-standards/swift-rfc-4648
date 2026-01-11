@@ -5,6 +5,7 @@
 //  Base64 encoding per RFC 4648 Section 4
 
 import INCITS_4_1986
+import Binary_Primitives
 
 // MARK: - Base64 Type
 
