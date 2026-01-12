@@ -4,7 +4,7 @@
 //
 //  Base32 encoding per RFC 4648 Section 6
 
-import INCITS_4_1986
+import ASCII
 import Binary_Primitives
 
 // MARK: - Base32 Type
