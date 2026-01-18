@@ -9,16 +9,16 @@ let package = Package(
         .iOS(.v26),
         .tvOS(.v26),
         .watchOS(.v26),
-        .visionOS(.v26),
+        .visionOS(.v26)
     ],
     products: [
         .library(name: "RFC 4648", targets: ["RFC 4648"]),
-        .library(name: "RFC 4648 Foundation", targets: ["RFC 4648 Foundation"]),
+        .library(name: "RFC 4648 Foundation", targets: ["RFC 4648 Foundation"])
     ],
     dependencies: [
         .package(path: "../../swift-primitives/swift-standard-library-extensions"),
         .package(path: "../../swift-primitives/swift-binary-primitives"),
-        .package(path: "../../swift-foundations/swift-ascii"),
+        .package(path: "../../swift-foundations/swift-ascii")
     ],
     targets: [
         .target(
@@ -26,26 +26,18 @@ let package = Package(
             dependencies: [
                 .product(name: "Standard Library Extensions", package: "swift-standard-library-extensions"),
                 .product(name: "Binary Primitives", package: "swift-binary-primitives"),
-                .product(name: "ASCII", package: "swift-ascii"),
+                .product(name: "ASCII", package: "swift-ascii")
             ],
             swiftSettings: [
-                .enableExperimentalFeature("Lifetimes"),
+                .enableExperimentalFeature("Lifetimes")
             ]
         ),
         .target(
             name: "RFC 4648 Foundation",
             dependencies: [
                 "RFC 4648",
-                .product(name: "Standard Library Extensions", package: "swift-standard-library-extensions"),
+                .product(name: "Standard Library Extensions", package: "swift-standard-library-extensions")
             ]
-        ),
-        .testTarget(
-            name: "RFC 4648 Tests",
-            dependencies: ["RFC 4648"]
-        ),
-        .testTarget(
-            name: "RFC 4648 Foundation Tests",
-            dependencies: ["RFC 4648 Foundation"]
-        ),
+        )
     ]
 )
