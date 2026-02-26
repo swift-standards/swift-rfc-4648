@@ -38,7 +38,19 @@ let package = Package(
                 "RFC 4648",
                 .product(name: "Standard Library Extensions", package: "swift-standard-library-extensions")
             ]
-        )
+        ),
+        .testTarget(
+            name: "RFC 4648 Tests",
+            dependencies: [
+                "RFC 4648",
+            ]
+        ),
+        .testTarget(
+            name: "RFC 4648 Foundation Tests",
+            dependencies: [
+                "RFC 4648",
+            ]
+        ),
     ]
 )
 
@@ -49,6 +61,7 @@ for target in package.targets where ![.system, .binary, .plugin, .macro].contain
         .enableUpcomingFeature("ExistentialAny"),
         .enableUpcomingFeature("InternalImportsByDefault"),
         .enableUpcomingFeature("MemberImportVisibility"),
+        .enableUpcomingFeature("NonisolatedNonsendingByDefault"),
         .enableExperimentalFeature("Lifetimes"),
         .enableExperimentalFeature("SuppressedAssociatedTypes"),
         .enableExperimentalFeature("SuppressedAssociatedTypesWithDefaults"),
