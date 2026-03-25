@@ -40,8 +40,8 @@ extension RFC_4648.Base16.SpanWrapper {
     /// - Returns: Hexadecimal encoded string
     @inlinable
     public func encoded(uppercase: Bool = false) -> String {
-        span.withUnsafeBufferPointer { buffer in
-            String(decoding: RFC_4648.Base16.encode(buffer, uppercase: uppercase) as [UInt8], as: UTF8.self)
+        unsafe span.withUnsafeBufferPointer { buffer in
+            unsafe String(decoding: RFC_4648.Base16.encode(buffer, uppercase: uppercase) as [UInt8], as: UTF8.self)
         }
     }
 
@@ -75,8 +75,8 @@ extension RFC_4648.Base64.SpanWrapper {
     /// - Returns: Base64 encoded string
     @inlinable
     public func encoded(padding: Bool = true) -> String {
-        span.withUnsafeBufferPointer { buffer in
-            String(decoding: RFC_4648.Base64.encode(buffer, padding: padding) as [UInt8], as: UTF8.self)
+        unsafe span.withUnsafeBufferPointer { buffer in
+            unsafe String(decoding: RFC_4648.Base64.encode(buffer, padding: padding) as [UInt8], as: UTF8.self)
         }
     }
 
@@ -113,8 +113,8 @@ extension RFC_4648.Base64.URL.SpanWrapper {
     /// - Returns: URL-safe Base64 encoded string
     @inlinable
     public func encoded(padding: Bool = false) -> String {
-        span.withUnsafeBufferPointer { buffer in
-            String(decoding: RFC_4648.Base64.URL.encode(buffer, padding: padding) as [UInt8], as: UTF8.self)
+        unsafe span.withUnsafeBufferPointer { buffer in
+            unsafe String(decoding: RFC_4648.Base64.URL.encode(buffer, padding: padding) as [UInt8], as: UTF8.self)
         }
     }
 }
@@ -142,8 +142,8 @@ extension RFC_4648.Base32.SpanWrapper {
     /// - Returns: Base32 encoded string
     @inlinable
     public func encoded(padding: Bool = true) -> String {
-        span.withUnsafeBufferPointer { buffer in
-            String(decoding: RFC_4648.Base32.encode(buffer, padding: padding) as [UInt8], as: UTF8.self)
+        unsafe span.withUnsafeBufferPointer { buffer in
+            unsafe String(decoding: RFC_4648.Base32.encode(buffer, padding: padding) as [UInt8], as: UTF8.self)
         }
     }
 
@@ -180,8 +180,8 @@ extension RFC_4648.Base32.Hex.SpanWrapper {
     /// - Returns: Base32-HEX encoded string
     @inlinable
     public func encoded(padding: Bool = true) -> String {
-        span.withUnsafeBufferPointer { buffer in
-            String(decoding: RFC_4648.Base32.Hex.encode(buffer, padding: padding) as [UInt8], as: UTF8.self)
+        unsafe span.withUnsafeBufferPointer { buffer in
+            unsafe String(decoding: RFC_4648.Base32.Hex.encode(buffer, padding: padding) as [UInt8], as: UTF8.self)
         }
     }
 }
