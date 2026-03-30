@@ -4,7 +4,7 @@
 // Foundation Data extensions for RFC 4648 encodings
 // Note: Foundation already provides Base64 encoding, so we only add the encodings it doesn't have
 
-import Foundation
+public import Foundation
 import RFC_4648
 
 // MARK: - Base64URL (RFC 4648 Section 5)

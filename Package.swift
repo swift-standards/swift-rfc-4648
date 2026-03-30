@@ -18,7 +18,7 @@ let package = Package(
     dependencies: [
         .package(path: "../../swift-primitives/swift-standard-library-extensions"),
         .package(path: "../../swift-primitives/swift-binary-primitives"),
-        .package(path: "../../swift-foundations/swift-ascii")
+        .package(path: "../../swift-primitives/swift-ascii-primitives")
     ],
     targets: [
         .target(
@@ -26,7 +26,7 @@ let package = Package(
             dependencies: [
                 .product(name: "Standard Library Extensions", package: "swift-standard-library-extensions"),
                 .product(name: "Binary Primitives", package: "swift-binary-primitives"),
-                .product(name: "ASCII", package: "swift-ascii")
+                .product(name: "ASCII Primitives", package: "swift-ascii-primitives")
             ],
             swiftSettings: [
                 .enableExperimentalFeature("Lifetimes")
@@ -48,7 +48,7 @@ let package = Package(
         .testTarget(
             name: "RFC 4648 Foundation Tests",
             dependencies: [
-                "RFC 4648",
+                "RFC 4648 Foundation",
             ]
         ),
     ]

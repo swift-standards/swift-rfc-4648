@@ -4,8 +4,8 @@
 //
 //  Base32-HEX encoding per RFC 4648 Section 7
 
-import ASCII
-import Binary_Primitives
+import ASCII_Primitives
+public import Binary_Primitives
 
 // MARK: - Base32-HEX Type
 

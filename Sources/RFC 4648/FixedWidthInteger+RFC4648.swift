@@ -8,7 +8,7 @@
 // for byte-to-integer conversion.
 
 import Standard_Library_Extensions
-import Binary_Primitives
+public import Binary_Primitives
 
 // MARK: - FixedWidthInteger Decoding
 

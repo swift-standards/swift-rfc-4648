@@ -4,8 +4,8 @@
 //
 //  Base64URL encoding per RFC 4648 Section 5
 
-import ASCII
-import Binary_Primitives
+import ASCII_Primitives
+public import Binary_Primitives
 
 // MARK: - Base64URL Type
 
