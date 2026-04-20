@@ -42,8 +42,8 @@ struct ValidationTests {
         #expect(!RFC_4648.Base64.isValid(input), "\(input) should be invalid Base64")
     }
 
-    @Test("Base64 validation with whitespace")
-    func base64ValidationWithWhitespace() {
+    @Test
+    func `Base64 validation with whitespace`() {
         // Our implementation allows whitespace
         #expect(RFC_4648.Base64.isValid("Zm9v\nYmFy"))
         #expect(RFC_4648.Base64.isValid("Zm9v YmFy"))
@@ -95,8 +95,8 @@ struct ValidationTests {
         #expect(RFC_4648.Base32.isValid(input), "\(input) should be valid Base32")
     }
 
-    @Test("Base32 case insensitive validation")
-    func base32CaseInsensitive() {
+    @Test
+    func `Base32 case insensitive validation`() {
         #expect(RFC_4648.Base32.isValid("MZXW6==="))
         #expect(RFC_4648.Base32.isValid("mzxw6==="))
         #expect(RFC_4648.Base32.isValid("MzXw6==="))
@@ -129,8 +129,8 @@ struct ValidationTests {
         #expect(RFC_4648.Base32.Hex.isValid(input), "\(input) should be valid Base32-HEX")
     }
 
-    @Test("Base32-HEX case insensitive validation")
-    func base32HexCaseInsensitive() {
+    @Test
+    func `Base32-HEX case insensitive validation`() {
         #expect(RFC_4648.Base32.Hex.isValid("CPNMU==="))
         #expect(RFC_4648.Base32.Hex.isValid("cpnmu==="))
         #expect(RFC_4648.Base32.Hex.isValid("CpNmU==="))
@@ -184,8 +184,8 @@ struct ValidationTests {
         #expect(!input.hex.isValid, "\(input) should be invalid hexadecimal")
     }
 
-    @Test("Hexadecimal validation with prefix")
-    func hexValidationWithPrefix() {
+    @Test
+    func `Hexadecimal validation with prefix`() {
         #expect(RFC_4648.Base16.isValid("0xdeadbeef"))
         #expect(RFC_4648.Base16.isValid("0xDEADBEEF"))
         #expect(RFC_4648.Base16.isValid("0XDEADBEEF"))
@@ -194,8 +194,8 @@ struct ValidationTests {
 
     // MARK: - Performance
 
-    @Test("Validation is efficient for large strings")
-    func validationPerformance() {
+    @Test
+    func `Validation is efficient for large strings`() {
         let largeValid = String(repeating: "Zm9vYmFy", count: 1000)
         let largeInvalid = String(repeating: "!!!!", count: 1000)
 
@@ -205,8 +205,8 @@ struct ValidationTests {
 
     // MARK: - Validation vs Decoding
 
-    @Test("Validation matches decoding for Base64")
-    func base64ValidationMatchesDecoding() {
+    @Test
+    func `Validation matches decoding for Base64`() {
         let testCases = [
             "Zm9vYmFy",  // valid
             "!@#$",  // invalid
@@ -225,8 +225,8 @@ struct ValidationTests {
         }
     }
 
-    @Test("Validation matches decoding for Base32")
-    func base32ValidationMatchesDecoding() {
+    @Test
+    func `Validation matches decoding for Base32`() {
         let testCases = [
             "MZXW6===",  // valid
             "189",  // invalid
@@ -244,8 +244,8 @@ struct ValidationTests {
         }
     }
 
-    @Test("Validation matches decoding for hexadecimal")
-    func hexValidationMatchesDecoding() {
+    @Test
+    func `Validation matches decoding for hexadecimal`() {
         let testCases = [
             "deadbeef",  // valid
             "0xdeadbeef",  // valid with prefix
@@ -267,8 +267,8 @@ struct ValidationTests {
 
     // MARK: - Edge Cases
 
-    @Test("Empty string validation across all encodings")
-    func emptyStringValidation() {
+    @Test
+    func `Empty string validation across all encodings`() {
         let empty = ""
 
         #expect(RFC_4648.Base64.isValid(empty))
@@ -278,8 +278,8 @@ struct ValidationTests {
         #expect(RFC_4648.Base16.isValid(empty))
     }
 
-    @Test("Unicode characters in validation")
-    func unicodeInValidation() {
+    @Test
+    func `Unicode characters in validation`() {
         // Non-ASCII characters should fail validation
         #expect(!RFC_4648.Base64.isValid("Zm9v🚀"))
         #expect(!RFC_4648.Base32.isValid("MZXW6😀"))

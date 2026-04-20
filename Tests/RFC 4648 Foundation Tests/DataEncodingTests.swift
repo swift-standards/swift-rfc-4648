@@ -15,8 +15,8 @@ struct DataEncodingTests {
 
     // MARK: - Base64URL
 
-    @Test("Data Base64URL encoding")
-    func dataBase64URLEncoding() {
+    @Test
+    func `Data Base64URL encoding`() {
         let data = Data("foobar".utf8)
 
         // Base64URL defaults to no padding per RFC 7515
@@ -25,8 +25,8 @@ struct DataEncodingTests {
         #expect(data.base64URLEncodedString(padding: true) == "Zm9vYmFy")
     }
 
-    @Test("Data Base64URL decoding")
-    func dataBase64URLDecoding() {
+    @Test
+    func `Data Base64URL decoding`() {
         let encoded = "Zm9vYmFy"
         let data = Data(base64URLEncoded: encoded)
 
@@ -34,8 +34,8 @@ struct DataEncodingTests {
         #expect(String(data: data!, encoding: .utf8) == "foobar")
     }
 
-    @Test("Data Base64URL handles URL-safe characters")
-    func dataBase64URLSafeCharacters() {
+    @Test
+    func `Data Base64URL handles URL-safe characters`() {
         // Value that would produce '+' or '/' in standard Base64
         let data = Data([0xFF, 0xFF, 0xFF])
 
@@ -52,16 +52,16 @@ struct DataEncodingTests {
 
     // MARK: - Base32
 
-    @Test("Data Base32 encoding")
-    func dataBase32Encoding() {
+    @Test
+    func `Data Base32 encoding`() {
         let data = Data("foo".utf8)
 
         #expect(data.base32EncodedString() == "MZXW6===")
         #expect(data.base32EncodedString(padding: false) == "MZXW6")
     }
 
-    @Test("Data Base32 decoding")
-    func dataBase32Decoding() {
+    @Test
+    func `Data Base32 decoding`() {
         let encoded = "MZXW6==="
         let data = Data(base32Encoded: encoded)
 
@@ -69,8 +69,8 @@ struct DataEncodingTests {
         #expect(String(data: data!, encoding: .utf8) == "foo")
     }
 
-    @Test("Data Base32 case insensitive decoding")
-    func dataBase32CaseInsensitive() {
+    @Test
+    func `Data Base32 case insensitive decoding`() {
         let upper = Data(base32Encoded: "MZXW6===")
         let lower = Data(base32Encoded: "mzxw6===")
         let mixed = Data(base32Encoded: "MzXw6===")
@@ -82,16 +82,16 @@ struct DataEncodingTests {
 
     // MARK: - Base32-HEX
 
-    @Test("Data Base32-HEX encoding")
-    func dataBase32HexEncoding() {
+    @Test
+    func `Data Base32-HEX encoding`() {
         let data = Data("foo".utf8)
 
         #expect(data.base32HexEncodedString() == "CPNMU===")
         #expect(data.base32HexEncodedString(padding: false) == "CPNMU")
     }
 
-    @Test("Data Base32-HEX decoding")
-    func dataBase32HexDecoding() {
+    @Test
+    func `Data Base32-HEX decoding`() {
         let encoded = "CPNMU==="
         let data = Data(base32HexEncoded: encoded)
 
@@ -99,8 +99,8 @@ struct DataEncodingTests {
         #expect(String(data: data!, encoding: .utf8) == "foo")
     }
 
-    @Test("Data Base32-HEX differs from Base32")
-    func dataBase32HexDifference() {
+    @Test
+    func `Data Base32-HEX differs from Base32`() {
         let data = Data("foo".utf8)
 
         let base32 = data.base32EncodedString()
@@ -115,8 +115,8 @@ struct DataEncodingTests {
 
     // MARK: - Hexadecimal
 
-    @Test("Data hexadecimal encoding")
-    func dataHexEncoding() {
+    @Test
+    func `Data hexadecimal encoding`() {
         let data = Data([0xDE, 0xAD, 0xBE, 0xEF])
 
         #expect(data.hexEncodedString() == "deadbeef")
@@ -124,8 +124,8 @@ struct DataEncodingTests {
         #expect(data.hexEncodedString(uppercase: true) == "DEADBEEF")
     }
 
-    @Test("Data hexadecimal decoding")
-    func dataHexDecoding() {
+    @Test
+    func `Data hexadecimal decoding`() {
         let lower = Data(hexEncoded: "deadbeef")
         let upper = Data(hexEncoded: "DEADBEEF")
         let mixed = Data(hexEncoded: "DeAdBeEf")
@@ -202,21 +202,21 @@ struct DataEncodingTests {
 
     // MARK: - Invalid Input
 
-    @Test("Invalid Base32 decoding")
-    func invalidBase32() {
+    @Test
+    func `Invalid Base32 decoding`() {
         #expect(Data(base32Encoded: "189") == nil)  // Base32 doesn't use 1, 8, 9
     }
 
-    @Test("Invalid hexadecimal decoding")
-    func invalidHex() {
+    @Test
+    func `Invalid hexadecimal decoding`() {
         #expect(Data(hexEncoded: "GHIJK") == nil)
         #expect(Data(hexEncoded: "fff") == nil)  // Odd length
     }
 
     // MARK: - Large Data
 
-    @Test("Large data encoding and decoding")
-    func testLargeData() {
+    @Test
+    func `Large data encoding and decoding`() {
         let largeData = Data((0..<10000).map { UInt8($0 % 256) })
 
         // Base64URL

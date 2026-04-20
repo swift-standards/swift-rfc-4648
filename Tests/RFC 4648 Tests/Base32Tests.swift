@@ -48,8 +48,8 @@ struct Base32Tests {
         #expect(decoded == expected, "Case-insensitive decoding should work for '\(encoded)'")
     }
 
-    @Test("Base32 encoding produces uppercase")
-    func encodingProducesUppercase() {
+    @Test
+    func `Base32 encoding produces uppercase`() {
         let input: [UInt8] = Array("hello".utf8)
         let encoded = String.base32(input)
 
@@ -121,8 +121,8 @@ struct Base32Tests {
 
     // MARK: - Alphabet Tests
 
-    @Test("Base32 uses correct alphabet (A-Z, 2-7)")
-    func alphabetRange() {
+    @Test
+    func `Base32 uses correct alphabet (A-Z, 2-7)`() {
         // Test that all characters in encoding are within A-Z, 2-7 range
         let input: [UInt8] = Array("The quick brown fox jumps over the lazy dog".utf8)
         let encoded = String.base32(input, padding: false)
@@ -156,8 +156,8 @@ struct Base32Tests {
 
     // MARK: - TOTP/HOTP Use Cases
 
-    @Test("Base32 secret key (typical TOTP use)")
-    func tOTPSecretKey() {
+    @Test
+    func `Base32 secret key (typical TOTP use)`() {
         // Typical TOTP secret: 20 random bytes
         let secret: [UInt8] = [
             0x48, 0x65, 0x6C, 0x6C, 0x6F, 0x21, 0xDE, 0xAD,
@@ -174,8 +174,8 @@ struct Base32Tests {
 
     // MARK: - Edge Cases
 
-    @Test("Base32 round-trip various sizes")
-    func roundTripVariousSizes() {
+    @Test
+    func `Base32 round-trip various sizes`() {
         for size in [1, 2, 3, 4, 5, 10, 20, 50, 100] {
             let input: [UInt8] = (0..<size).map { UInt8($0 % 256) }
             let encoded = String.base32(input)
@@ -184,8 +184,8 @@ struct Base32Tests {
         }
     }
 
-    @Test("Base32 round-trip long string")
-    func testLongString() {
+    @Test
+    func `Base32 round-trip long string`() {
         let longString = String(repeating: "Hello, World! ", count: 100)
         let input = Array(longString.utf8)
         let encoded = String.base32(input)

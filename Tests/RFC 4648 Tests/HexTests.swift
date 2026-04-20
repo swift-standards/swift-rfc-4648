@@ -33,15 +33,15 @@ struct HexTests {
 
     // MARK: - Case Tests
 
-    @Test("Hex encoding lowercase by default")
-    func lowercaseDefault() {
+    @Test
+    func `Hex encoding lowercase by default`() {
         let input: [UInt8] = [0xFF, 0xAB, 0xCD]
         let encoded = String.hex(input)
         #expect(encoded == "ffabcd")
     }
 
-    @Test("Hex encoding uppercase when requested")
-    func uppercaseOption() {
+    @Test
+    func `Hex encoding uppercase when requested`() {
         let input: [UInt8] = [0xFF, 0xAB, 0xCD]
         let encoded = String.hex(input, uppercase: true)
         #expect(encoded == "FFABCD")
@@ -115,8 +115,8 @@ struct HexTests {
 
     // MARK: - Binary Data Tests
 
-    @Test("Hex encoding all byte values")
-    func allByteValues() {
+    @Test
+    func `Hex encoding all byte values`() {
         for byte in 0...255 {
             let input: [UInt8] = [UInt8(byte)]
             let encoded = String.hex(input)
@@ -125,8 +125,8 @@ struct HexTests {
         }
     }
 
-    @Test("Hex encoding all zeros")
-    func allZeros() {
+    @Test
+    func `Hex encoding all zeros`() {
         let input: [UInt8] = [0x00, 0x00, 0x00]
         let encoded = String.hex(input)
         #expect(encoded == "000000")
@@ -135,8 +135,8 @@ struct HexTests {
         #expect(decoded == input)
     }
 
-    @Test("Hex encoding all ones")
-    func allOnes() {
+    @Test
+    func `Hex encoding all ones`() {
         let input: [UInt8] = [0xFF, 0xFF, 0xFF]
         let encoded = String.hex(input)
         #expect(encoded == "ffffff")
@@ -145,8 +145,8 @@ struct HexTests {
         #expect(decoded == input)
     }
 
-    @Test("Hex encoding sequential bytes")
-    func sequentialBytes() {
+    @Test
+    func `Hex encoding sequential bytes`() {
         let input: [UInt8] = [0x00, 0x01, 0x02, 0x03, 0x04, 0x05]
         let encoded = String.hex(input)
         #expect(encoded == "000102030405")
@@ -157,8 +157,8 @@ struct HexTests {
 
     // MARK: - Common Use Cases
 
-    @Test("Hex encoding SHA-256 hash")
-    func sHA256Hash() {
+    @Test
+    func `Hex encoding SHA-256 hash`() {
         // Typical SHA-256 hash: 32 bytes
         let hash: [UInt8] = [
             0xE3, 0xB0, 0xC4, 0x42, 0x98, 0xFC, 0x1C, 0x14,
@@ -174,8 +174,8 @@ struct HexTests {
         #expect(decoded == hash)
     }
 
-    @Test("Hex encoding UUID bytes")
-    func uUIDBytes() {
+    @Test
+    func `Hex encoding UUID bytes`() {
         // Typical UUID: 16 bytes
         let uuid: [UInt8] = [
             0x12, 0x34, 0x56, 0x78, 0x9A, 0xBC, 0xDE, 0xF0,
@@ -187,8 +187,8 @@ struct HexTests {
         #expect(decoded == uuid)
     }
 
-    @Test("Hex encoding color values")
-    func colorValues() {
+    @Test
+    func `Hex encoding color values`() {
         // RGB color: #FF5733
         let color: [UInt8] = [0xFF, 0x57, 0x33]
         let encoded = String.hex(color, uppercase: true)
@@ -203,8 +203,8 @@ struct HexTests {
 
     // MARK: - Edge Cases
 
-    @Test("Hex round-trip various sizes")
-    func roundTripVariousSizes() {
+    @Test
+    func `Hex round-trip various sizes`() {
         for size in [1, 2, 10, 100, 1000] {
             let input: [UInt8] = (0..<size).map { UInt8($0 % 256) }
             let encoded = String.hex(input)
@@ -213,8 +213,8 @@ struct HexTests {
         }
     }
 
-    @Test("Hex round-trip long string")
-    func testLongString() {
+    @Test
+    func `Hex round-trip long string`() {
         let longString = String(repeating: "Hello, World! ", count: 100)
         let input = Array(longString.utf8)
         let encoded = String.hex(input)
@@ -241,8 +241,8 @@ struct HexTests {
         #expect(decoded == expected, "'\(input)' should decode to \(expected)")
     }
 
-    @Test("Hex encoding produces consistent output")
-    func consistentOutput() {
+    @Test
+    func `Hex encoding produces consistent output`() {
         let input: [UInt8] = [0xAB, 0xCD, 0xEF]
 
         let encoded1 = String.hex(input)

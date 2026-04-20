@@ -12,8 +12,8 @@ struct SpanTests {
 
     // MARK: - Base16 (Hex)
 
-    @Test("Span hex encoding matches Array encoding")
-    func spanHexEncoding() {
+    @Test
+    func `Span hex encoding matches Array encoding`() {
         let bytes: [UInt8] = [0xDE, 0xAD, 0xBE, 0xEF]
         bytes.withUnsafeBufferPointer { buffer in
             let span = Span(_unsafeElements: buffer)
@@ -22,8 +22,8 @@ struct SpanTests {
         }
     }
 
-    @Test("Span hex callable syntax")
-    func spanHexCallable() {
+    @Test
+    func `Span hex callable syntax`() {
         let bytes: [UInt8] = [0xCA, 0xFE]
         bytes.withUnsafeBufferPointer { buffer in
             let span = Span(_unsafeElements: buffer)
@@ -32,8 +32,8 @@ struct SpanTests {
         }
     }
 
-    @Test("Empty span hex encoding")
-    func emptySpanHex() {
+    @Test
+    func `Empty span hex encoding`() {
         let bytes: [UInt8] = []
         bytes.withUnsafeBufferPointer { buffer in
             let span = Span(_unsafeElements: buffer)
@@ -43,8 +43,8 @@ struct SpanTests {
 
     // MARK: - Base64
 
-    @Test("Span base64 encoding matches Array encoding")
-    func spanBase64Encoding() {
+    @Test
+    func `Span base64 encoding matches Array encoding`() {
         let bytes: [UInt8] = [72, 101, 108, 108, 111]  // "Hello"
         bytes.withUnsafeBufferPointer { buffer in
             let span = Span(_unsafeElements: buffer)
@@ -53,8 +53,8 @@ struct SpanTests {
         }
     }
 
-    @Test("Span base64 URL encoding matches Array encoding")
-    func spanBase64URLEncoding() {
+    @Test
+    func `Span base64 URL encoding matches Array encoding`() {
         let bytes: [UInt8] = [0xFB, 0xFF, 0xBF]  // Bytes that produce +/ in standard Base64
         bytes.withUnsafeBufferPointer { buffer in
             let span = Span(_unsafeElements: buffer)
@@ -63,8 +63,8 @@ struct SpanTests {
         }
     }
 
-    @Test("Empty span base64 encoding")
-    func emptySpanBase64() {
+    @Test
+    func `Empty span base64 encoding`() {
         let bytes: [UInt8] = []
         bytes.withUnsafeBufferPointer { buffer in
             let span = Span(_unsafeElements: buffer)
@@ -74,8 +74,8 @@ struct SpanTests {
 
     // MARK: - Base32
 
-    @Test("Span base32 encoding matches Array encoding")
-    func spanBase32Encoding() {
+    @Test
+    func `Span base32 encoding matches Array encoding`() {
         let bytes: [UInt8] = [72, 101, 108, 108, 111]  // "Hello"
         bytes.withUnsafeBufferPointer { buffer in
             let span = Span(_unsafeElements: buffer)
@@ -84,8 +84,8 @@ struct SpanTests {
         }
     }
 
-    @Test("Span base32 hex encoding matches Array encoding")
-    func spanBase32HexEncoding() {
+    @Test
+    func `Span base32 hex encoding matches Array encoding`() {
         let bytes: [UInt8] = [72, 101, 108, 108, 111]
         bytes.withUnsafeBufferPointer { buffer in
             let span = Span(_unsafeElements: buffer)
@@ -94,8 +94,8 @@ struct SpanTests {
         }
     }
 
-    @Test("Empty span base32 encoding")
-    func emptySpanBase32() {
+    @Test
+    func `Empty span base32 encoding`() {
         let bytes: [UInt8] = []
         bytes.withUnsafeBufferPointer { buffer in
             let span = Span(_unsafeElements: buffer)
@@ -105,8 +105,8 @@ struct SpanTests {
 
     // MARK: - Temporary Allocation
 
-    @Test("Span encoding from temporary allocation")
-    func temporaryAllocationEncoding() {
+    @Test
+    func `Span encoding from temporary allocation`() {
         let result = withUnsafeTemporaryAllocation(of: UInt8.self, capacity: 4) { buffer in
             buffer[0] = 0xCA
             buffer[1] = 0xFE
@@ -118,8 +118,8 @@ struct SpanTests {
         #expect(result == "cafebabe")
     }
 
-    @Test("Span base64 from temporary allocation")
-    func temporaryAllocationBase64() {
+    @Test
+    func `Span base64 from temporary allocation`() {
         let result = withUnsafeTemporaryAllocation(of: UInt8.self, capacity: 3) { buffer in
             buffer[0] = 0x48  // H
             buffer[1] = 0x69  // i

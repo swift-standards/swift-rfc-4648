@@ -30,8 +30,8 @@ struct Base64URLTests {
 
     // MARK: - URL Safety Tests
 
-    @Test("Base64URL uses URL-safe characters")
-    func uRLSafeCharacters() {
+    @Test
+    func `Base64URL uses URL-safe characters`() {
         // This input would produce '+' and '/' in standard Base64
         let input: [UInt8] = [0xFB, 0xFF, 0xFF]
         let encoded = String.base64.url(input)
@@ -45,8 +45,8 @@ struct Base64URLTests {
         #expect(decoded == input)
     }
 
-    @Test("Base64URL with special chars")
-    func specialCharacterSubstitution() {
+    @Test
+    func `Base64URL with special chars`() {
         // Input that produces all special chars in Base64URL
         let input: [UInt8] = [0xFF, 0xFF]
         let encoded = String.base64.url(input)
@@ -82,8 +82,8 @@ struct Base64URLTests {
 
     // MARK: - Whitespace Handling
 
-    @Test("Base64URL decoding with whitespace")
-    func whitespaceHandling() {
+    @Test
+    func `Base64URL decoding with whitespace`() {
         let input = "Zm9v\nYmFy"
         let decoded = [UInt8](base64URLEncoded: input)
         #expect(decoded == Array("foobar".utf8))
@@ -107,8 +107,8 @@ struct Base64URLTests {
 
     // MARK: - JWT Use Case
 
-    @Test("Base64URL JWT header example")
-    func jWTHeader() {
+    @Test
+    func `Base64URL JWT header example`() {
         // Typical JWT header: {"alg":"HS256","typ":"JWT"}
         let headerJSON = Array("{\"alg\":\"HS256\",\"typ\":\"JWT\"}".utf8)
         let encoded = String.base64.url(headerJSON, padding: false)
@@ -124,16 +124,16 @@ struct Base64URLTests {
 
     // MARK: - Binary Data Tests
 
-    @Test("Base64URL binary data")
-    func binaryData() {
+    @Test
+    func `Base64URL binary data`() {
         let input: [UInt8] = [0x00, 0xFF, 0x80, 0x7F, 0x3E, 0x3F]
         let encoded = String.base64.url(input)
         let decoded = [UInt8](base64URLEncoded: encoded)
         #expect(decoded == input)
     }
 
-    @Test("Base64URL all special characters")
-    func allSpecialCharacters() {
+    @Test
+    func `Base64URL all special characters`() {
         // Input that generates maximum special chars
         let input: [UInt8] = [0xFF, 0xEF, 0xFF, 0xEF]
         let encoded = String.base64.url(input)
@@ -152,8 +152,8 @@ struct Base64URLTests {
 
     // MARK: - Edge Cases
 
-    @Test("Base64URL round-trip long string")
-    func testLongString() {
+    @Test
+    func `Base64URL round-trip long string`() {
         let longString = String(repeating: "Hello, World! ", count: 100)
         let input = Array(longString.utf8)
         let encoded = String.base64.url(input, padding: false)
@@ -163,8 +163,8 @@ struct Base64URLTests {
 
     // MARK: - Comparison with Standard Base64
 
-    @Test("Base64URL produces different output than Base64 for special chars")
-    func differentFromBase64() {
+    @Test
+    func `Base64URL produces different output than Base64 for special chars`() {
         let input: [UInt8] = [0xFF, 0xFF]
 
         // Use padding for Base64 (standard Base64 requires it for decoding)

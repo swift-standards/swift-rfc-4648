@@ -13,8 +13,8 @@ import Testing
     struct FoundationComparisonTests {
         // MARK: - Base64 Comparison
 
-        @Test("Base64 encoding matches Foundation")
-        func base64EncodingMatchesFoundation() {
+        @Test
+        func `Base64 encoding matches Foundation`() {
             let testCases: [[UInt8]] = [
                 [],
                 Array("f".utf8),
@@ -39,8 +39,8 @@ import Testing
             }
         }
 
-        @Test("Base64 decoding matches Foundation")
-        func base64DecodingMatchesFoundation() {
+        @Test
+        func `Base64 decoding matches Foundation`() {
             let testCases = [
                 "",
                 "Zg==",
@@ -63,8 +63,8 @@ import Testing
             }
         }
 
-        @Test("Base64 round-trip matches Foundation")
-        func base64RoundTripMatchesFoundation() {
+        @Test
+        func `Base64 round-trip matches Foundation`() {
             let testBytes: [[UInt8]] = [
                 Array("Hello, World!".utf8),
                 (0..<255).map { UInt8($0) },
@@ -89,8 +89,8 @@ import Testing
 
         // MARK: - Base64 with Options
 
-        @Test("Base64 encoding with line length matches Foundation")
-        func base64WithLineLength() {
+        @Test
+        func `Base64 encoding with line length matches Foundation`() {
             let longBytes = (0..<200).map { UInt8($0 % 256) }
 
             // Our implementation (single line, no line breaks)
@@ -106,8 +106,8 @@ import Testing
 
         // MARK: - Invalid Base64
 
-        @Test("Base64 invalid characters rejected by both")
-        func invalidCharactersRejected() {
+        @Test
+        func `Base64 invalid characters rejected by both`() {
             let invalidChars = "!!!!"  // Invalid characters
 
             let ourResult = [UInt8](base64Encoded: invalidChars)
@@ -118,8 +118,8 @@ import Testing
             #expect(foundationResult == nil)
         }
 
-        @Test("Base64 invalid length rejected by both")
-        func invalidLengthRejected() {
+        @Test
+        func `Base64 invalid length rejected by both`() {
             let invalidLength = "Zm9"  // Not multiple of 4
 
             let ourResult = [UInt8](base64Encoded: invalidLength)
@@ -130,8 +130,8 @@ import Testing
             #expect(foundationResult == nil)
         }
 
-        @Test("Base64 edge case padding differences")
-        func paddingEdgeCases() {
+        @Test
+        func `Base64 edge case padding differences`() {
             // Note: Foundation is more lenient with some padding edge cases
             // Our implementation strictly follows RFC 4648
 
@@ -148,8 +148,8 @@ import Testing
 
         // MARK: - Edge Cases
 
-        @Test("Base64 whitespace handling - RFC 4648 compliance")
-        func whitespaceHandling() {
+        @Test
+        func `Base64 whitespace handling - RFC 4648 compliance`() {
             // RFC 4648 Section 3.3: "Implementations MUST reject the encoded data if it
             // contains characters outside the base alphabet when interpreting base-encoded
             // data, unless the specification referring to this document explicitly states
@@ -179,8 +179,8 @@ import Testing
             #expect(ourClean == foundationClean)
         }
 
-        @Test("Base64 empty string handling")
-        func emptyStringHandling() {
+        @Test
+        func `Base64 empty string handling`() {
             let emptyBytes: [UInt8] = []
 
             let ourEncoded = String.base64(emptyBytes)
@@ -198,8 +198,8 @@ import Testing
 
         // MARK: - Performance Parity
 
-        @Test("Base64 large data matches Foundation")
-        func largeDataMatchesFoundation() {
+        @Test
+        func `Base64 large data matches Foundation`() {
             // Test with 1MB of data
             let largeBytes = (0..<(1024 * 1024)).map { UInt8($0 % 256) }
 
@@ -217,8 +217,8 @@ import Testing
 
         // MARK: - Binary Data
 
-        @Test("Base64 all byte values match Foundation")
-        func allByteValuesMatchFoundation() {
+        @Test
+        func `Base64 all byte values match Foundation`() {
             let allBytes = (0...255).map { UInt8($0) }
 
             let ourEncoded = String.base64(allBytes)
@@ -235,8 +235,8 @@ import Testing
 
         // MARK: - Hex Comparison (if Foundation provides hex encoding)
 
-        @Test("Hex encoding produces valid output")
-        func hexEncodingFormat() {
+        @Test
+        func `Hex encoding produces valid output`() {
             let testBytes: [UInt8] = [0x00, 0x0F, 0xFF, 0xAB, 0xCD, 0xEF]
 
             let ourHex = String.hex(testBytes)
@@ -249,8 +249,8 @@ import Testing
             #expect(decoded == testBytes)
         }
 
-        @Test("Hex uppercase encoding produces valid output")
-        func hexUppercaseEncoding() {
+        @Test
+        func `Hex uppercase encoding produces valid output`() {
             let testBytes: [UInt8] = [0x00, 0x0F, 0xFF, 0xAB, 0xCD, 0xEF]
 
             let ourHexUpper = String.hex(testBytes, uppercase: true)
@@ -265,8 +265,8 @@ import Testing
 
         // MARK: - Exhaustive Byte Pattern Tests
 
-        @Test("Base64 all single-byte values match Foundation")
-        func allSingleByteValues() {
+        @Test
+        func `Base64 all single-byte values match Foundation`() {
             for byte in 0...255 {
                 let bytes: [UInt8] = [UInt8(byte)]
 
@@ -283,8 +283,8 @@ import Testing
             }
         }
 
-        @Test("Base64 all two-byte combinations (sampled)")
-        func twoBytePatterns() {
+        @Test
+        func `Base64 all two-byte combinations (sampled)`() {
             // Test representative two-byte patterns (every 17th to keep test fast)
             for i in stride(from: 0, through: 255, by: 17) {
                 for j in stride(from: 0, through: 255, by: 17) {
@@ -301,8 +301,8 @@ import Testing
             }
         }
 
-        @Test("Base64 all three-byte combinations (sampled)")
-        func threeBytePatterns() {
+        @Test
+        func `Base64 all three-byte combinations (sampled)`() {
             // Test representative three-byte patterns
             for i in stride(from: 0, through: 255, by: 51) {
                 for j in stride(from: 0, through: 255, by: 51) {
@@ -349,8 +349,8 @@ import Testing
 
         // MARK: - Random Data Tests
 
-        @Test("Base64 random data patterns match Foundation")
-        func randomDataPatterns() {
+        @Test
+        func `Base64 random data patterns match Foundation`() {
             // Use seeded random for reproducibility
             var generator = SeededRandomNumberGenerator(seed: 42)
 
@@ -432,8 +432,8 @@ import Testing
 
         // MARK: - BinaryInteger Encoding Tests
 
-        @Test("Base64 BinaryInteger UInt8 values match Foundation")
-        func binaryIntegerUInt8() {
+        @Test
+        func `Base64 BinaryInteger UInt8 values match Foundation`() {
             for value in [UInt8.min, 1, 127, 128, 255, UInt8.max] {
                 let bytes = withUnsafeBytes(of: value.bigEndian) { Array($0) }
 
@@ -447,8 +447,8 @@ import Testing
             }
         }
 
-        @Test("Base64 BinaryInteger UInt16 values match Foundation")
-        func binaryIntegerUInt16() {
+        @Test
+        func `Base64 BinaryInteger UInt16 values match Foundation`() {
             let values: [UInt16] = [0, 1, 255, 256, 32767, 32768, 65535, UInt16.max]
 
             for value in values {
@@ -464,8 +464,8 @@ import Testing
             }
         }
 
-        @Test("Base64 BinaryInteger UInt32 values match Foundation")
-        func binaryIntegerUInt32() {
+        @Test
+        func `Base64 BinaryInteger UInt32 values match Foundation`() {
             let values: [UInt32] = [
                 0, 1, 255, 256, 65535, 65536,
                 123_456, 0xDEAD_BEEF, 0x1234_5678,
@@ -485,8 +485,8 @@ import Testing
             }
         }
 
-        @Test("Base64 BinaryInteger UInt64 values match Foundation")
-        func binaryIntegerUInt64() {
+        @Test
+        func `Base64 BinaryInteger UInt64 values match Foundation`() {
             let values: [UInt64] = [
                 0, 1, 255, 256, 65535, 65536,
                 UInt64(UInt32.max),
@@ -509,8 +509,8 @@ import Testing
 
         // MARK: - Boundary and Edge Cases
 
-        @Test("Base64 consecutive byte values match Foundation")
-        func consecutiveByteValues() {
+        @Test
+        func `Base64 consecutive byte values match Foundation`() {
             for start in stride(from: 0, through: 200, by: 50) {
                 let length = 55
                 let bytes = (start..<min(start + length, 256)).map { UInt8($0) }
@@ -522,8 +522,8 @@ import Testing
             }
         }
 
-        @Test("Base64 alternating patterns match Foundation")
-        func alternatingPatterns() {
+        @Test
+        func `Base64 alternating patterns match Foundation`() {
             let patterns: [[UInt8]] = [
                 Array(repeating: [0x00, 0xFF], count: 50).flatMap { $0 },
                 Array(repeating: [0xAA, 0x55], count: 50).flatMap { $0 },
@@ -539,8 +539,8 @@ import Testing
             }
         }
 
-        @Test("Base64 powers of two lengths match Foundation")
-        func powersOfTwoLengths() {
+        @Test
+        func `Base64 powers of two lengths match Foundation`() {
             for power in 0...10 {
                 let length = 1 << power  // 1, 2, 4, 8, 16, 32, 64, 128, 256, 512, 1024
                 let bytes = (0..<length).map { UInt8($0 % 256) }
@@ -557,8 +557,8 @@ import Testing
 
         // MARK: - Decoding Edge Cases
 
-        @Test("Base64 decode various valid inputs match Foundation")
-        func decodeVariousValidInputs() {
+        @Test
+        func `Base64 decode various valid inputs match Foundation`() {
             let validInputs = [
                 "YQ==",  // "a"
                 "YWI=",  // "ab"
@@ -583,8 +583,8 @@ import Testing
             }
         }
 
-        @Test("Base64 decode with padding matches Foundation")
-        func decodeWithPadding() {
+        @Test
+        func `Base64 decode with padding matches Foundation`() {
             // Both our implementation and Foundation require proper 4-byte alignment
             // (padding to make the input length a multiple of 4)
 
@@ -622,8 +622,8 @@ import Testing
 
         // MARK: - Stress Tests
 
-        @Test("Base64 very large data matches Foundation")
-        func veryLargeData() {
+        @Test
+        func `Base64 very large data matches Foundation`() {
             // Test with 10MB of data
             let largeSize = 10 * 1024 * 1024
             let largeBytes = (0..<largeSize).map { UInt8($0 % 256) }
@@ -642,8 +642,8 @@ import Testing
             #expect(foundationEncoded.count == expectedLength)
         }
 
-        @Test("Base64 repetitive patterns at scale match Foundation")
-        func repetitivePatternsAtScale() {
+        @Test
+        func `Base64 repetitive patterns at scale match Foundation`() {
             let patterns: [[UInt8]] = [
                 Array(repeating: 0x00, count: 10000),
                 Array(repeating: 0xFF, count: 10000),

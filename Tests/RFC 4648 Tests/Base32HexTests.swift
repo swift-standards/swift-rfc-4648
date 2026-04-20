@@ -33,8 +33,8 @@ struct Base32HexTests {
 
     // MARK: - Alphabet Tests
 
-    @Test("Base32-HEX uses correct alphabet (0-9, A-V)")
-    func alphabetRange() {
+    @Test
+    func `Base32-HEX uses correct alphabet (0-9, A-V)`() {
         let input: [UInt8] = Array("The quick brown fox jumps over the lazy dog".utf8)
         let encoded = String.base32.hex(input, padding: false)
 
@@ -44,8 +44,8 @@ struct Base32HexTests {
         }
     }
 
-    @Test("Base32-HEX differs from Base32")
-    func differentFromBase32() {
+    @Test
+    func `Base32-HEX differs from Base32`() {
         let input: [UInt8] = Array("foo".utf8)
 
         let base32 = String.base32(input, padding: false)
@@ -76,8 +76,8 @@ struct Base32HexTests {
         #expect(decoded == expected, "Case-insensitive decoding should work for '\(encoded)'")
     }
 
-    @Test("Base32-HEX encoding produces uppercase")
-    func encodingProducesUppercase() {
+    @Test
+    func `Base32-HEX encoding produces uppercase`() {
         let input: [UInt8] = Array("hello".utf8)
         let encoded = String.base32.hex(input)
 
@@ -169,8 +169,8 @@ struct Base32HexTests {
 
     // MARK: - Edge Cases
 
-    @Test("Base32-HEX round-trip various sizes")
-    func roundTripVariousSizes() {
+    @Test
+    func `Base32-HEX round-trip various sizes`() {
         for size in [1, 2, 3, 4, 5, 10, 20, 50, 100] {
             let input: [UInt8] = (0..<size).map { UInt8($0 % 256) }
             let encoded = String.base32.hex(input)
@@ -179,8 +179,8 @@ struct Base32HexTests {
         }
     }
 
-    @Test("Base32-HEX round-trip long string")
-    func testLongString() {
+    @Test
+    func `Base32-HEX round-trip long string`() {
         let longString = String(repeating: "Hello, World! ", count: 100)
         let input = Array(longString.utf8)
         let encoded = String.base32.hex(input)
@@ -190,8 +190,8 @@ struct Base32HexTests {
 
     // MARK: - Lexicographic Ordering
 
-    @Test("Base32-HEX maintains lexicographic order")
-    func lexicographicOrder() {
+    @Test
+    func `Base32-HEX maintains lexicographic order`() {
         // Base32-HEX is designed so encoded values maintain the same order as input
         let input1: [UInt8] = [0x00]
         let input2: [UInt8] = [0x01]

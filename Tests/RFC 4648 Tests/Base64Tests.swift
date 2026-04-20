@@ -112,8 +112,8 @@ struct Base64Tests {
 
     // MARK: - Edge Cases
 
-    @Test("Base64 round-trip long string")
-    func testLongString() {
+    @Test
+    func `Base64 round-trip long string`() {
         let longString = String(repeating: "Hello, World! ", count: 100)
         let input = Array(longString.utf8)
         let encoded = String.base64(input)
